@@ -10,11 +10,22 @@
 <body>
     {% include 'navbar.html' %}
     <h1>존나 하기 싫어</h1>
-    <div class="container-fluid " style="display: flex; justify-content: center; align-items: center;">
-        <img src="{{url_for('static', filename='menu/YOLO.jpg')}} " class="img-fluid custom-border" alt="fuck">
-        <img src="{{url_for('static', filename='menu/cnn.jpg')}} " class="img-fluid custom-border" alt="fuck">
-    </div>    
-
+    <form>
+        <div class="container-fluid " style="display: flex; justify-content: center; align-items: center;">       
+            <img src="{{url_for('static', filename='menu/YOLO.jpg')}} " class="img-fluid custom-border model_image" alt="fuck">
+            <img src="{{url_for('static', filename='menu/cnn.jpg')}} " class="img-fluid custom-border model_image" alt="fuck">    
+        </div>    
+        <div class="container-fluid " style="display: flex; justify-content: center; align-items: center;">              
+            <a href="#" class="btn btn-primary btn-lg"
+            style="--bs-btn-padding-y: 1rem; --bs-btn-padding-x: 135px; --bs-btn-font-size: .5rem;">
+            YOLO
+            </a>
+            <a href="/cnn" class="btn btn-secondary btn-lg"
+            style="--bs-btn-padding-y: 1rem; --bs-btn-padding-x: 135px; --bs-btn-font-size: .5rem;">
+            CNN
+            </a>
+        </div>
+    </form>
       
     <br><br>
     {% include 'accordion.html' %}
