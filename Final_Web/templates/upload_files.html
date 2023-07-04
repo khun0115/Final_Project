@@ -1,156 +1,92 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    {% include 'style.html' %}
-    <style>
-        .thumbnail-grid {
-          display: grid;
-          grid-template-columns: repeat(5, 100px);
-          grid-template-rows: repeat(2, 100px);
-          grid-gap: 10px;
-        }
-      
-        .thumbnail {
-          width: 100px;
-          height: 100px;
-        }
-      
-        .placeholder {
-          border: 1px dashed #ccc;
-          background-color: #f9f9f9;
-        }
-      </style>
-      
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  {% include 'style.html' %}
+
+
 </head>
+
 <body>
-    {% include 'navbar.html' %}
-    <!-- navbar이하 form으로 묶음 -->
-    <form method="post" action="/upfile" enctype="multipart/form-data"></form>
-        <br>
-        <!-- 3열 디자인은 위에서 선언한style .container(여백:40px) -->
-        <div class="row mb-3 container custom-border">
-            <div class="col-sm">
-                <label for="formGroupExampleInput" class="form-label">제조사</label>
-                <select id="made-select" class="form-select form-select-sm" aria-label=".form-select-sm example">
-                    <option>제조사를 골라 주세요</option>
-                </select>
-            </div>
-            
-            <script>
-                var made_list = [
-                    '삼성',
-                    '기아',
-                    'made_list'
-                ];
-            
-                var selectBox = document.getElementById('made-select');
-            
-                for (var i = 0; i < made_list.length; i++) {
-                    var option = document.createElement('option');
-                    option.text = made_list[i];
-                    selectBox.add(option);
-                }
-            </script>
-            
+  {% include 'navbar.html' %}
+  <!-- navbar이하 form으로 묶음 -->
+  <form method="post" action="/upfile" enctype="multipart/form-data"></form>
+  <br>
 
-
-            <div class="col-sm">
-                <label for="formGroupExampleInput" class="form-label">차종</label>
-                <select class="form-select form-select-sm" aria-label=".form-select-sm example">
-                    <option selected>차종을 골라 주세요</option>
-                    <option value="1">차종One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                </select>
-            </div>
-
-
-            <div class="col-sm">
-                <label for="formGroupExampleInput" class="form-label">색상</label>
-                <select id="color-select" class="form-select form-select-sm" aria-label=".form-select-sm example">
-                </select>
-            
-                <script>
-                    // options 리스트
-                    var options = [
-                        '색상을 골라 주세요',
-                        'Red',
-                        'Green',
-                        'Blue'
-                    ];
-            
-                    // 셀렉트 박스 요소 가져오기
-                    var selectBox = document.getElementById('color-select');
-            
-                    // options 리스트를 셀렉트 박스에 추가
-                    for (var i = 0; i < options.length; i++) {
-                        var option = document.createElement('option');
-                        option.text = options[i];
-                        selectBox.add(option);
-                    }
-                </script>
-            </div>
-        </div>
-        <div class="container custom-border">
-            <div>
-                <h1>차량 부위 사진 업로드</h2>
-            </div>
-            <br>
-            <img src="..." class="img-thumbnail rounded mx-auto d-block" alt="예시사진"><br>
-            <input type="file" name="part_img_file"/>
-            <button type="submit">업로드</button>
-            
-        </div>
-        <form class="container custom-border">
-            <div>
-                <h1>차량 부위 사진 업로드</h2>
-            </div>
-            <input type="file" id="imageUpload" multiple>
-            <div class="thumbnail-grid" id="thumbnails"></div>
-          
-          
-          <script>
-            const imageUpload = document.getElementById('imageUpload');
-            const thumbnailsContainer = document.getElementById('thumbnails');
-          
-            imageUpload.addEventListener('change', handleImageUpload);
-          
-            function handleImageUpload(event) {
-              const files = event.target.files;
-              thumbnailsContainer.innerHTML = '';
-          
-              const totalSlots = 10; // 썸네일 자리의 총 개수
-              const emptySlots = totalSlots - files.length; // 빈 자리의 개수
-          
-              for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-          
-                reader.onload = function(e) {
-                  const thumbnail = document.createElement('img');
-                  thumbnail.src = e.target.result;
-                  thumbnail.classList.add('thumbnail');
-                  thumbnailsContainer.appendChild(thumbnail);
-                }
-          
-                reader.readAsDataURL(file);
-              }
-          
-              for (let i = 0; i < emptySlots; i++) {
-                const placeholder = document.createElement('div');
-                placeholder.classList.add('thumbnail', 'placeholder');
-                thumbnailsContainer.appendChild(placeholder);
-              }
-            }
-          </script>
+  <div>
     
-        
-    </form>
+  </div>
+
+
+  <div class="container custom-border">
+    <div>
+      <h1>차량 부위 사진 업로드</h2>
+    </div>
+    <br>
+    <img src="..." class="img-thumbnail rounded mx-auto d-block" alt="예시사진"><br>
+    <input type="file" name="part_img_file" />
+    <button type="submit">업로드</button>
+
+  </div>
+  <form class="container custom-border">
+    <div>
+      <h1>차량 부위 사진 업로드</h2>
+    </div>
+    <input type="file" id="imageUpload" multiple>
+    <div class="thumbnail-grid" id="thumbnails"></div>
+
+
+    <script>
+      const imageUpload = document.getElementById('imageUpload');
+      const thumbnailsContainer = document.getElementById('thumbnails');
+
+      imageUpload.addEventListener('change', handleImageUpload);
+
+      function handleImageUpload(event) {
+        const files = event.target.files;
+        thumbnailsContainer.innerHTML = '';
+
+        const totalSlots = 10; // 썸네일 자리의 총 개수
+        const emptySlots = totalSlots - files.length; // 빈 자리의 개수
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            const thumbnail = document.createElement('img');
+            thumbnail.src = e.target.result;
+            thumbnail.classList.add('thumbnail');
+            thumbnailsContainer.appendChild(thumbnail);
+          }
+
+          reader.readAsDataURL(file);
+        }
+
+        for (let i = 0; i < emptySlots; i++) {
+          const placeholder = document.createElement('div');
+          placeholder.classList.add('thumbnail', 'placeholder');
+          thumbnailsContainer.appendChild(placeholder);
+        }
+      }
+    </script>
+
+
+  </form>
+  <div class="d-flex justify-content-center">
+    <a href="/out_put" class="btn custom-button btn-lg custom-button:hover" style="width: 50%;">
+      가격 알아보러 가기
+    </a>
+  </div>
+
 </body>
+
 </html>
 <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>

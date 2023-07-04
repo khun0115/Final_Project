@@ -21,9 +21,43 @@
             width: 300px; /* 원하는 가로 크기로 조정 */
             height: 300px; /* 세로 크기는 자동 조정 */
         }
-        .body {
-            background-color: #f0f0f05d; /* 배경색을 원하는 색상 또는 값으로 변경하세요 */
+        .custom-button {
+            background-color: #ff2626; /* 원하는 색상 코드로 변경하세요 */
+            color: #FFFFFF; /* 텍스트 색상을 지정하세요 */
+            font-size: 24px;
+            font-weight: bold; 
         }
+        .thumbnail-grid {
+          display: grid;
+          grid-template-columns: repeat(5, 100px);
+          grid-template-rows: repeat(2, 100px);
+          grid-gap: 10px;
+        }
+      
+        .thumbnail {
+          width: 100px;
+          height: 100px;
+        }
+      
+        .placeholder {
+          border: 1px dashed #ccc;
+          background-color: #f9f9f9;
+        }
+
+        .custom-button:hover {
+            background-color: #f16d6d; /* 마우스 호버 시의 색상으로 변경하세요 */
+        }
+
+        .center-block {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .select-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px; /* 각 셀렉트 박스 사이의 간격을 조정합니다 */
+    }
     </style>
 </body>
 </html>
