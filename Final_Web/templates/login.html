@@ -9,8 +9,7 @@
 </head>
 <body>
   {% include 'navbar.html' %}
-  <h1>로그인</h1>
-  <form action="/login" method="post">
+  <form class="custom-border d-flex justify-content-center" action="/login" method="post">
     <input type="text" name="username" placeholder="여기에 아이디를 입력"><br><br>
     <input type="text" name="userpass" placeholder="여기에 패스워드를 입력"><br><br>
     <input type="submit" value="로그인">

@@ -1,51 +1,62 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSS Style</title>
 </head>
+
 <body>
     <style>
         .custom-border {
-            border: 3px solid rgb(0, 0, 0);
+            border: 3px solid rgb(255, 189, 189);
             border-radius: 10px;
-            
+
         }
+
         .container {
-            margin: 40px;
+            /* margin: 40px; */
             margin-top: 10px;
             margin-bottom: 20px;
         }
+
         .model_image {
-            width: 300px; /* 원하는 가로 크기로 조정 */
-            height: 300px; /* 세로 크기는 자동 조정 */
+            width: 300px;
+            /* 원하는 가로 크기로 조정 */
+            height: 300px;
+            /* 세로 크기는 자동 조정 */
         }
+
         .custom-button {
-            background-color: #ff2626; /* 원하는 색상 코드로 변경하세요 */
-            color: #FFFFFF; /* 텍스트 색상을 지정하세요 */
+            background-color: #ff2626;
+            /* 원하는 색상 코드로 변경하세요 */
+            color: #FFFFFF;
+            /* 텍스트 색상을 지정하세요 */
             font-size: 24px;
-            font-weight: bold; 
+            font-weight: bold;
         }
+
         .thumbnail-grid {
-          display: grid;
-          grid-template-columns: repeat(5, 100px);
-          grid-template-rows: repeat(2, 100px);
-          grid-gap: 10px;
+            display: grid;
+            grid-template-columns: repeat(5, 100px);
+            grid-template-rows: repeat(2, 100px);
+            grid-gap: 10px;
         }
-      
+
         .thumbnail {
-          width: 100px;
-          height: 100px;
+            width: 100px;
+            height: 100px;
         }
-      
+
         .placeholder {
-          border: 1px dashed #ccc;
-          background-color: #f9f9f9;
+            border: 1px dashed #ccc;
+            background-color: #f9f9f9;
         }
 
         .custom-button:hover {
-            background-color: #f16d6d; /* 마우스 호버 시의 색상으로 변경하세요 */
+            background-color: #f16d6d;
+            /* 마우스 호버 시의 색상으로 변경하세요 */
         }
 
         .center-block {
@@ -53,11 +64,28 @@
             margin-right: auto;
         }
 
-        .select-container {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px; /* 각 셀렉트 박스 사이의 간격을 조정합니다 */
-    }
+
+        .radio-select-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 20px;
+           
+        }
+
+        .form-check-label {
+            font-size: 20px;
+            
+            font-weight: bold; 
+        }
+        .custom-image {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
     </style>
 </body>
+
 </html>

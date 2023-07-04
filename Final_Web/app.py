@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, session
+import os
 
 app = Flask(__name__)
 
@@ -19,14 +20,20 @@ def board():
 # 부위사진 1장과 상처별로 사진 1장씩 입력받아서 cnn돌리기 위함.
 @app.route('/cnn')
 def cnn():
-    return render_template('upload_files.html')
+    # f = request.files['myfile']
+    # f.save(f.filename)
+
+    colors = ['그레이', '레드', '블랙', '블루', '실버', '오렌지', '화이트']
+    return render_template('upload_files.html', colors=colors)
 
 # 수정중 ㅁ?ㄹ                                                                   --논의 필요
-@app.route('/upload_file')
-def upload_file():
-    f = request.files['myfile']
-    f.save(f.filename)
-    return render_template('upload_files.html')
+# @app.route('/upload_file')
+# def upload_file():
+#     f = request.files['myfile']
+#     f.save(f.filename)
+
+#     colors = ['그레이', '레드', '블랙', '블루', '실버', '오렌지', '화이트']
+#     return render_template('upload_files.html', colors=colors)
 
 
 # 결과창 공통점
@@ -42,6 +49,17 @@ def upload_file():
 #  
 @app.route('/out_put', methods=['GET', 'POST'])
 def out_put():
+    # 업로드된 파일들을 저장할 경로
+    upload_folder = '/static/input_images'
+
+    # 업로드된 파일들을 받아서 저장
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+
+    for file in request.files.getlist('image'):
+        if file:
+            file.save(os.path.join(upload_folder, file.filename))
+
     return render_template('out_put.html')
 
 # 로그인 회원만 사용 할 수 있는 기능. 회원 아니면 회원 전용 기능 disable 
