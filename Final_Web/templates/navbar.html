@@ -1,4 +1,11 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<style>
+  .custom-navbar {
+    background-color: #e20f0f; /* 원하는 색상 코드로 변경하세요 */
+    color: #FFFFFF; /* 텍스트 색상을 지정하세요 */
+  }
+</style>
+  
+<nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">
       {% if session['id'] %}
