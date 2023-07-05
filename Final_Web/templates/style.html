@@ -10,7 +10,7 @@
 <body>
     <style>
         .custom-border {
-            border: 3px solid rgb(255, 189, 189);
+            border: 3px solid rgb(255, 255, 255);
             border-radius: 10px;
 
         }
@@ -22,33 +22,85 @@
         }
 
         .model_image {
-            width: 300px;
-            /* 원하는 가로 크기로 조정 */
-            height: 300px;
-            /* 세로 크기는 자동 조정 */
+            width: 500px;
+            height: 500px;
+            margin: 60px;
+            margin-bottom: 10px;
         }
 
         .custom-button {
-            background-color: #ff2626;
+            margin-top: 10px;
+            background-color: #423d3bbb;
             /* 원하는 색상 코드로 변경하세요 */
             color: #FFFFFF;
             /* 텍스트 색상을 지정하세요 */
             font-size: 24px;
             font-weight: bold;
+            width: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 60px;
+
+            --bs-btn-padding-y: 1rem;
+            --bs-btn-padding-x: 135px;
+            --bs-btn-font-size: 0.5rem;
+            
         }
+
+
 
         .thumbnail-grid {
             display: grid;
-            grid-template-columns: repeat(5, 100px);
-            grid-template-rows: repeat(2, 100px);
+            grid-template-columns: repeat(5, 150px);
+            grid-template-rows: repeat(2, 150px);
             grid-gap: 10px;
+
         }
 
-        .thumbnail {
-            width: 100px;
-            height: 100px;
+        .thumbnail-grid .thumbnail {
+            width: 150px;
+            height: 150px;
+            background-color: #5a585c;
+            border: 5px solid #e41111;
             cursor: auto;
+            position: relative;
         }
+
+        .thumbnail-grid .thumbnail::before {
+            content: "";
+            position: absolute;
+            left: 10px;
+            /* 시작 위치를 조정합니다 */
+            right: 10px;
+            /* 끝 위치를 조정합니다 */
+            top: 50%;
+            /* 수평선의 위치를 조정합니다 */
+            height: 3px;
+            background-color: #ffffff;
+            /* 수평선의 색상을 설정합니다 */
+            transform: translateY(-50%);
+            /* 수평선을 수직 중앙에 위치시킵니다 */
+            z-index: 1;
+        }
+
+        .thumbnail-grid .thumbnail::after {
+            content: "";
+            position: absolute;
+            top: 10px;
+            /* 시작 위치를 조정합니다 */
+            bottom: 10px;
+            /* 끝 위치를 조정합니다 */
+            left: 50%;
+            /* 수직선의 위치를 조정합니다 */
+            width: 3px;
+            background-color: #ffffff;
+            /* 수직선의 색상을 설정합니다 */
+            transform: translateX(-50%);
+            /* 수직선을 수평 중앙에 위치시킵니다 */
+            z-index: 1;
+        }
+
 
         .placeholder {
             border: 1px dashed #ccc;
@@ -71,14 +123,15 @@
             flex-direction: row;
             align-items: center;
             gap: 20px;
-           
+
         }
 
         .form-check-label {
             font-size: 20px;
-            
-            font-weight: bold; 
+
+            font-weight: bold;
         }
+
         .custom-image {
             display: block;
             margin-left: auto;
