@@ -150,7 +150,7 @@
       차량 부위 사진 업로드란
     </span>
     <br>
-    <img src="..." class="img-thumbnail rounded mx-auto d-block custom-image" alt="예시사진"><br>
+    <img src="{{url_for('static', filename='menu/rear_fender_ex.jpg')}} " class="img-thumbnail rounded mx-auto d-block custom-image" alt="예시사진" style="height: 200px; width: 200px;"><br>
     <input type="file" name="part_img_file" />
     <button type="submit">업로드</button>
 
@@ -175,8 +175,10 @@
 
       imageUpload.addEventListener('change', handleImageUpload);
 
-      function handleImageUpload(event) {
-        const files = event.target.files;
+      handleImageUpload();
+
+      function handleImageUpload() {
+        const files = imageUpload.files;
         thumbnailsContainer.innerHTML = '';
 
         const totalSlots = 10; // 썸네일 자리의 총 개수
