@@ -4,6 +4,7 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 import joblib
+import subprocess
 from tensorflow.keras.models import Sequential, load_model, Model
 from tensorflow.keras.layers import Dense, Flatten, Input, concatenate
 from tensorflow.keras.layers import Conv2D, MaxPool2D, Dropout
@@ -12,6 +13,8 @@ from tensorflow.keras.optimizers import SGD, Adam, RMSprop
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 app = Flask(__name__)
+app.secret_key = 'aaa'
+
 
 UPLOAD_FOLDER = '/path/to/save/folder'  # 저장할 폴더 경로
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -37,43 +40,55 @@ def board():
 
 @app.route('/cnn')
 def cnn():
-    # f = request.files['part_img_file']
-    # f.save(f.filename)
-
     colors = ['그레이', '레드', '블랙', '블루', '실버', '오렌지', '화이트']
     return render_template('upload_files.html', colors=colors)
 
 
-# @app.route('/upload', methods=['POST'])
-# def upload_file():
-#     if 'part_img_file' not in request.files:
-#         return 'No file part_img'
+@app.route('/yolo')
+def yolo():
+    colors = ['그레이', '레드', '블랙', '블루', '실버', '오렌지', '화이트']
+    return render_template('yolo.html', colors=colors)
 
-#     file = request.files['part_img_file']
-#     if file.filename == '':
-#         return 'No selected file'
-
-#     # 저장할 파일 경로 생성
-#     save_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-
-#     # 이미지 저장
-#     file.save(save_path)
-
-#     return 'File uploaded successfully'
 
 @app.route('/upload_damage_type', methods=['POST'])
 def upload():
-    # 업로드한 파일 가져오기
     uploaded_file = request.files['damage_type_image']
 
     if uploaded_file:
         # 파일 저장
         filename = uploaded_file.filename
-        uploaded_file.save(f'Final_Web/static/input_images/car_damage_type/client_input/{filename}')
+        file_path = f'Final_Web/static/input_images/car_damage_type/client_input/{filename}'
+        uploaded_file.save(file_path)
 
-        return '파일 업로드 완료'
+        # 세션에 이미지 파일 경로 저장
+        session['uploaded_image'] = file_path
 
-    return '파일 업로드 실패'
+    return render_template('upload_files.html', damage_type_img=session['uploaded_image'])
+
+
+@app.route('/upload_yolo', methods=['POST'])
+def upload2():
+    uploaded_file = request.files['']
+
+    if uploaded_file:
+        # 파일 저장
+        filename = uploaded_file.filename
+        file_path = f'Final_Web/static/input_images/yolo_input/{filename}'
+        uploaded_file.save(file_path)
+#######################
+    best_weights_path = 'Final_Web/static/models/best.pt'  # 최적의 가중치 경로 설정
+    test_data_path = file_path  # 테스트 데이터 경로 설정
+    output_path = "Final_Web/static/output_images"
+
+    # !python3 Final_Web/static/models/detect.py \
+    #         --weights {best_weights_path} \
+    #         --source {test_data_path} \
+    #         --img 512 \
+    #         --conf 0.1 \
+    #         --save-dir {output_path}"
+
+
+    return render_template('upload_files.html', damage_type_img=session['uploaded_image'])
 
 
 # 수정중 ㅁ?ㄹ                                  --논의 필요

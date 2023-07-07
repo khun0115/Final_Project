@@ -71,6 +71,31 @@ http://www.encar.com/index.do#
 제조사 고르면 차량 차량 고르면 연식. 이 작업들 전까진 셀렉트 disable
 
 
+7/7 DB연동
+
+0.도장(car_coating_price) 1.교환(car_part_price) 2.판금(HQ * 공임 비용(3,5000))
+
+도장: 차량크기, 색상
+교환: 연식
+판금: DB이용 X
+
+
+도장 : car_color_price
+색상 가격 비율 : f"SELECT price FROM car_color_price WHERE color='{색상변수명}'"  # 흰색 대비 1L 가격 비율
+>> 부수비용 (HQ*coating_price)* price
+
+도장 : car_part_price
+차량 크기 : f"SELECT DISTINCT 차량크기 FROM car_part_price WHERE 차이름='{차종변수명}'"
+
+--------------------------------------------------------------------------
+
+교환 : car_part_price
+연식 : f"SELECT DISTINCT 차량크기 FROM car_part_price WHERE 차이름='{차종변수명}'"
+
+--------------------------------------------------------------------------
+
+판금 : X
+
 db 모든 차종별 연식 ............. 
 
 0)

@@ -18,7 +18,7 @@
 
 <body>
     {% include 'navbar.html' %}
-    <br><br>
+    
     <form>
         <div class="container-fluid " style="display: flex; justify-content: center; align-items: center;">
             <img src="{{url_for('static', filename='menu/yolo_img.png')}} " class="img-fluid custom-border model_image"
@@ -27,7 +27,7 @@
                 alt="cnn">
         </div>
         <div class="container-fluid " style="display: flex; justify-content: center; align-items: center;">
-            <a href="#" class="btn custom-button btn-lg custom-button:hover">
+            <a href="/yolo" class="btn custom-button btn-lg custom-button:hover">
                 YOLO
             </a>
             <a href="/cnn" class="btn custom-button btn-lg custom-button:hover">
@@ -36,7 +36,7 @@
         </div>
     </form>
 
-    <br><br>
+    
     <div style="display: flex; justify-content: center; align-items: center;">
         <button class="offcanvas-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom"
             aria-controls="offcanvasBottom">
