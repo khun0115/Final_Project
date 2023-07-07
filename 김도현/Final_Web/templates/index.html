@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    {% include 'style.html' %}
+    <style>
+        body {
+            background-color: #ffffff;
+            /* 배경색을 원하는 색상 또는 값으로 변경하세요 */
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+    <br><br>
+    <form>
+        <div class="container-fluid " style="display: flex; justify-content: center; align-items: center;">
+            <img src="{{url_for('static', filename='menu/yolo_img.png')}} " class="img-fluid custom-border model_image"
+                alt="yolo">
+            <img src="{{url_for('static', filename='menu/cnn.jpg')}} " class="img-fluid custom-border model_image"
+                alt="cnn">
+        </div>
+        <div class="container-fluid " style="display: flex; justify-content: center; align-items: center;">
+            <a href="#" class="btn custom-button btn-lg custom-button:hover">
+                YOLO
+            </a>
+            <a href="/cnn" class="btn custom-button btn-lg custom-button:hover">
+                CNN
+            </a>
+        </div>
+    </form>
+
+    <br><br>
+    <div style="display: flex; justify-content: center; align-items: center;">
+        <button class="offcanvas-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom"
+            aria-controls="offcanvasBottom">
+            사이트 이용법</button>
+    </div>
+
+
+
+    <div class="offcanvas offcanvas-bottom" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel"
+        style="height: 50vh;">
+        <div class="offcanvas-header" style="color: #ffffff; background-color: black; text-align: left;">
+
+            <h1 class="offcanvas-title" id="offcanvasBottomLabel" style="margin-bottom: 0;"><strong>주의사항</strong></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+
+        </div>
+
+        <div style="font-size: 18px; text-align: left; color: #ffffff; background-color: black; padding-left: 24px;">
+            ※ 사고난 부위를 판별 하기 위해 차량에서 1M 가량 떨어진 후 사진을 1장 찍어 주시기 바랍니다.<br><br>
+        </div>
+        
+        <br>
+        <div class="offcanvas-body large" style="font-size: 18px; ">
+            <div>
+                <h2><strong> 1. YOLO 이용방법</strong></h2>
+                - <strong>Step1 :</strong> YOLO는 여러개의 파손이 있더라도 모두 인식하기 때문에, 전체 부위가 드러나도록 1 장만 입력해주시면 됩니다.
+            </div>
+            <br>
+            <hr>
+            <br>
+            <div>
+                <h2><strong> 2. CNN 이용방법 </strong> </h2>
+                - <strong>Step1 :</strong> 사고난 차량 파손 유형을 판별 하기 위해 사진이 1장 이상 필요 합니다.<br>
+                - <strong>Step2 :</strong> 차량에 발생한 파손이 여러개라면, 파손 1개당 1장씩 올려주세요.
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>

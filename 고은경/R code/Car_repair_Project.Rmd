@@ -1,0 +1,1209 @@
+---
+
+title: "Car Repair Analysis Report"
+author: "3조"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+    toc_float: true
+
+---
+
+# **Car Repair Analysis Report**
+
+<br>
+
+<h3><center> Preview </center></h3>
+
+<br>
+
+<center> **Purpose** </center>
+
+<center> **차량 수리 비용 예측 모델**에 사용할 차종, 파손 유형, 색상, 연식이 </center>
+<center> 수리비에 유의미한 영향을 미치는 변수인지 검정하기 위해 진행한 분석 </center>
+
+<br>
+
+| 변수 | 도장   (coating) | 판금수리(sheet_metal) | 탈착교환(exchange) |     비고     |
+|---|:--:|:--:|:--:|--------|
+| **차종(supercategory_name)** | True | True | True | 모든 변수의 P-value가 유의미하게 작음 |
+| **파손유형(damage)** | True | True | True | 모든 변수의 P-value가 유의미하게 작음 |
+| **색상(color)** | True | True | True | coating과 exchage가 유의미한 차이가 존재하는 색상 조합이 많음 |
+| **연식(year)** | True | True | True | 모든 변수의 P-value가 유의미하게 작음 |
+
+<br>
+
+# 1. Data Definition
+
+-   <https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100>
+
+<br>
+
+## 1-1. Package Prepare
+
+```{r}
+# install.packages("readxl")
+# install.packages("nparcomp")
+# install.packages("nortest")
+# install.packages("dplyr")
+# install.packages("pgirmess")
+# install.packages("ggplot2")
+# install.packages("gridExtra")
+
+library(readxl)
+library(nparcomp)
+library(nortest)
+library(dplyr)
+library(pgirmess)
+library(ggplot2)
+library(gridExtra)
+```
+
+<br>
+
+## 1-2. Data Load
+
+```{r}
+repair_car <- read.csv("repair_price.csv", header=T)
+str(repair_car)
+```
+
+<br>
+
+```{r}
+repair_car_cy <- read.csv("color_year_data.csv", header=T)
+str(repair_car_cy)
+```
+
+## 1-3. Data Review
+
+```{r}
+head(repair_car)
+```
+
+```{r}
+head(repair_car_cy)
+```
+
+<br>
+
+```{r}
+repair_car$total <- repair_car$coating + repair_car$sheet_metal + repair_car$exchange
+repair_car[repair_car$supercategory_name == "CityCar", "supercategory_name"] = "Compact car"
+head(repair_car)
+```
+
+<br>
+
+```{r}
+repair_car_cy$total <- repair_car_cy$coating + repair_car_cy$sheet_metal + repair_car_cy$exchange
+head(repair_car_cy)
+```
+
+<br><br>
+
+# 2. EDA & Statistical Test
+
+<br>
+
+## 2-1. 차종별 수리비용 차이가 존재하는가?
+
+<br>
+
+-   귀무가설 : 차종별 수리비용 차이가 존재하지 않는다.
+-   대립가설 : 차종별 수리비용 차이가 존재한다.
+
+<br>
+
+### 2-1-1. Feature Review
+
+-   supercategory_name(차종) : Full-size car(대형), Mid-size car(중형),
+    Compact car(소형) <br> ~~*Compact car은 소형과 경형을 합쳐둔 것*~~
+-   total(총지불금액) = coating(도장공임) + sheet_metal(판금수리) +
+    exchange(탈착교환)
+
+<br>
+
+**차종 변수 검토**
+
+```{r}
+table(repair_car$supercategory_name)
+```
+
+**차종별 차의 개수와 평균 수리비용 조회**
+
+```{r}
+mean_table <- repair_car %>% group_by(supercategory_name) %>% 
+                  summarise(mean_total = mean(total), mean_coating = mean(coating), 
+                            mean_sheet_metal = mean(sheet_metal), mean_exchange = mean(exchange),
+                            count = n())
+mean_table
+```
+
+**항목별 수리비 변수 검토**
+
+```{r}
+print(summary(repair_car$total))
+print(summary(repair_car$coating))
+print(summary(repair_car$sheet_metal))
+print(summary(repair_car$exchange))
+```
+
+=\> max값이 너무 커 평균과 중앙값 차이가 많이 남 -\> 보정 필요
+
+<br>
+
+### 2-1-2. 시각화
+
+```{r}
+# 차종에 따른 총 수리비용 평균과 분포 개수 확인 #
+theme_set(theme_bw())
+g1 <- ggplot(data = mean_table, aes(x=supercategory_name, y=mean_total)) + geom_col() + 
+  labs(title="Total Price Mean")
+g2 <- ggplot(data = mean_table, aes(x=supercategory_name, y=count)) + geom_col() + 
+  labs(title="COUNT")
+grid.arrange(g1, g2, ncol=2)
+```
+
+```{r}
+boxplot(repair_car$coating, repair_car$sheet_metal, repair_car$exchange, repair_car$total, 
+        col=c("Tomato1", "Pink1", "Khaki1", "Light Steel Blue1"), main="수리별 비용 분포도",xlab="수리방법",ylab="가격", 
+        ylim=c(0, 1e+06), names=c("coating","sheet_metal","exchange", "total"))
+```
+
+<br>
+
+### 2-1-3. 극단값 조정
+
+```{r}
+# 극단값 제거 
+repair_sqrt <- subset(repair_car, coating <= 5e+05 & sheet_metal <= 5e+05 & exchange <= 5e+05)
+
+# 정규화 해주기
+repair_sqrt <- transform(repair_sqrt, coating = sqrt(coating + 1))
+repair_sqrt <- transform(repair_sqrt, sheet_metal = sqrt(sheet_metal + 1))
+repair_sqrt <- transform(repair_sqrt, exchange = sqrt(exchange + 1))
+repair_sqrt <- transform(repair_sqrt, total = sqrt(total + 1))
+
+repair_sqrt %>% select("coating", "sheet_metal", "exchange", "total") %>% head(7)
+```
+
+```{r}
+boxplot(repair_sqrt$coating, repair_sqrt$sheet_metal, repair_sqrt$exchange, repair_sqrt$total,
+        col=c("Tomato1", "Pink1", "Khaki1", "Light Steel Blue1"), main="수리별 비용 분포도",
+        xlab="수리방법",ylab="가격", names=c("coating","sheet_metal","exchange", "total"))
+```
+
+<br>
+
+### 2-1-4. Statistical Test
+
+#### (1) 정규분포 확인
+
+```{r}
+moonBook::densityplot(total~supercategory_name, data=repair_sqrt)
+moonBook::densityplot(coating~supercategory_name, data=repair_sqrt)
+moonBook::densityplot(sheet_metal~supercategory_name, data=repair_sqrt)
+moonBook::densityplot(exchange~supercategory_name, data=repair_sqrt)
+```
+
+**total**
+
+```{r}
+ad.test(repair_sqrt$total[repair_sqrt$supercategory_name=="Full-size car"])
+ad.test(repair_sqrt$total[repair_sqrt$supercategory_name=="Mid-size car"])
+ad.test(repair_sqrt$total[repair_sqrt$supercategory_name=="Compact car"])
+```
+
+**coating**
+
+```{r}
+ad.test(repair_sqrt$coating[repair_sqrt$supercategory_name=="Full-size car"])
+ad.test(repair_sqrt$coating[repair_sqrt$supercategory_name=="Mid-size car"])
+ad.test(repair_sqrt$coating[repair_sqrt$supercategory_name=="Compact car"])
+```
+
+**sheet_metal**
+
+```{r}
+ad.test(repair_sqrt$sheet_metal[repair_sqrt$supercategory_name=="Full-size car"])
+ad.test(repair_sqrt$sheet_metal[repair_sqrt$supercategory_name=="Mid-size car"])
+ad.test(repair_sqrt$sheet_metal[repair_sqrt$supercategory_name=="Compact car"])
+```
+
+**exchange**
+
+```{r}
+ad.test(repair_sqrt$exchange[repair_sqrt$supercategory_name=="Full-size car"])
+ad.test(repair_sqrt$exchange[repair_sqrt$supercategory_name=="Mid-size car"])
+ad.test(repair_sqrt$exchange[repair_sqrt$supercategory_name=="Compact car"])
+```
+
+=\> 정규분포를 이루지 않으므로 **kruskal검정**으로 진행 <br> =\> 하지만
+표본수가 충분하므로 **중심극한정리**에 의해 정규분포를 이룬다고 가정한
+상태에서도 진행
+
+<br>
+
+#### (2) 등분산 확인
+
+```{r}
+bartlett.test(total~supercategory_name, data=repair_sqrt)
+bartlett.test(coating~supercategory_name, data=repair_sqrt)
+bartlett.test(sheet_metal~supercategory_name, data=repair_sqrt)
+bartlett.test(exchange~supercategory_name, data=repair_sqrt)
+```
+
+=\> 등분산을 이루지 않는다.
+
+<br>
+
+#### (3) One Way ANOVA
+
+**정규분포라 가정**
+
+```{r}
+oneway.test(total~supercategory_name, data=repair_sqrt, var.equal = F)
+oneway.test(coating~supercategory_name, data=repair_sqrt, var.equal = F)
+oneway.test(sheet_metal~supercategory_name, data=repair_sqrt, var.equal = F)
+oneway.test(exchange~supercategory_name, data=repair_sqrt, var.equal = F)
+```
+
+**정규분포가 아니면**
+
+```{r}
+kruskal.test(total~supercategory_name, data=repair_sqrt)
+kruskal.test(coating~supercategory_name, data=repair_sqrt)
+kruskal.test(sheet_metal~supercategory_name, data=repair_sqrt)
+kruskal.test(exchange~supercategory_name, data=repair_sqrt)
+```
+
+<br>
+
+#### (4) 사후 검정
+
+**정규분포라 가정**
+
+```{r}
+# result <- mctp(total~supercategory_name, data=repair_sqrt)
+# summary(result)
+# result <- mctp(coating~supercategory_name, data=repair_sqrt)
+# summary(result)
+# result <- mctp(sheet_metal~supercategory_name, data=repair_sqrt)
+# summary(result)
+# result <- mctp(exchange~supercategory_name, data=repair_sqrt)
+# summary(result)
+```
+
+**정규분포가 아니면**
+
+```{r}
+kruskalmc(repair_sqrt$total, repair_sqrt$supercategory_name)
+kruskalmc(repair_sqrt$coating, repair_sqrt$supercategory_name)
+kruskalmc(repair_sqrt$sheet_metal, repair_sqrt$supercategory_name)
+kruskalmc(repair_sqrt$exchange, repair_sqrt$supercategory_name)
+```
+
+<br>
+
+------------------------------------------------------------------------
+
+<h3><center>**RESULT**</center></h3>
+
+<br>
+
+<center>`차종별 수리비용 차이 존재`</center>
+
+<br>
+
+<center>Preview</center>
+
+<br>
+
+-   평균과 중앙값의 차이가 커 50만원 초과 제외 후 제곱근을 통해 수의
+    크기를 줄여줬지만 정규분포를 이루지 않음. <br>
+-   하지만 표본수가 Full-size car은 45만개 이상, Mid-size car은 123만개
+    이상, Compact car은 64만개 이상이므로 중심극한정리에 의해 정규분포를
+    이룬다고 가정한 후 두가지 방법으로 검정 진행
+
+<br>
+
+**total**
+
+| category                     | difference |   P-Value |
+|------------------------------|:----------:|----------:|
+| `Compact car-Full-size car`  |    TRUE    | 0.0000000 |
+| `Compact car-Mid-size car`   |    TRUE    | 0.0000000 |
+| `Full-size car-Mid-size car` |    TRUE    | 0.0000000 |
+
+<br>
+
+**coating**
+
+| category                     | difference |  P-Value  |
+|------------------------------|:----------:|:---------:|
+| `Compact car-Full-size car`  |    TRUE    | 0.0000000 |
+| `Compact car-Mid-size car`   |    TRUE    | 0.0000000 |
+| `Full-size car-Mid-size car` |    TRUE    | 0.0000000 |
+
+<br>
+
+**sheet_metal**
+
+| category                     | difference |  P-Value  |
+|------------------------------|:----------:|:---------:|
+| `Compact car-Full-size car`  |    TRUE    | 0.0000000 |
+| `Compact car-Mid-size car`   |    TRUE    | 0.0000000 |
+| `Full-size car-Mid-size car` |    TRUE    | 0.0000000 |
+
+<br>
+
+**exchange**
+
+| category                     | difference |  P-Value  |
+|------------------------------|:----------:|:---------:|
+| `Compact car-Full-size car`  |    TRUE    | 0.0000000 |
+| `Compact car-Mid-size car`   |    TRUE    | 0.0000000 |
+| `Full-size car-Mid-size car` |    TRUE    | 0.0000000 |
+
+<br>
+
+-   각 수리방법마다 차량별 수리비용 차이 존재
+-   즉, *귀무가설 기각*
+-   **차량별 수리비용 차이가 존재**한다고 할 수 있다.
+
+------------------------------------------------------------------------
+
+<br><br>
+
+## 2-2. 파손 종류별 수리비용 차이가 존재하는가?
+
+<br>
+
+-   귀무가설 : 파손 종류별 수리비용 차이가 존재하지 않는다.
+-   대립가설 : 파손 종류별 수리비용 차이가 존재한다.
+
+<br>
+
+### 2-2-1. Feature Review
+
+-   damage(파손유형) : Breakage(파손), Crushed(찌그러짐),
+    Scratched(스크래치), Separated(이격) <br>
+-   total(총지불금액) = coating(도장공임) + sheet_metal(판금수리) +
+    exchange(탈착교환)
+
+<br>
+
+**파손유형 변수 검토**
+
+```{r}
+table(repair_car$damage)
+```
+
+**파손유형별 총 개수와 평균 수리비용 조회**
+
+```{r}
+mean_damage <- repair_car %>% group_by(damage) %>% 
+                  summarise(mean_total = mean(total), mean_coating = mean(coating), 
+                            mean_sheet_metal = mean(sheet_metal), mean_exchange = mean(exchange),
+                            count = n())
+mean_damage
+```
+
+<br>
+
+### 2-2-2. 시각화
+
+```{r}
+# 파손유형에 따른 총 수리비용 평균과 분포 개수 확인 #
+theme_set(theme_bw())
+g1 <- ggplot(data = mean_damage, aes(x=damage, y=mean_total)) + geom_col() + 
+  labs(title="Total Price Mean")
+g2 <- ggplot(data = mean_damage, aes(x=damage, y=count)) + geom_col() + 
+  labs(title="COUNT")
+grid.arrange(g1, g2, ncol=2)
+```
+
+<br>
+
+### 2-2-3. 극단값 조정
+
+-   repair_sqrt 이용
+
+<br>
+
+### 2-2-4. Statistical Test
+
+#### (1) 정규분포 확인
+
+```{r}
+moonBook::densityplot(total~damage, data=repair_sqrt)
+moonBook::densityplot(coating~damage, data=repair_sqrt)
+moonBook::densityplot(sheet_metal~damage, data=repair_sqrt)
+moonBook::densityplot(exchange~damage, data=repair_sqrt)
+```
+
+**total**
+
+```{r}
+ad.test(repair_sqrt$total[repair_sqrt$damage=="Scratched"])
+ad.test(repair_sqrt$total[repair_sqrt$damage=="Crushed"])
+ad.test(repair_sqrt$total[repair_sqrt$damage=="Separated"])
+ad.test(repair_sqrt$total[repair_sqrt$damage=="Breakage"])
+```
+
+**coating**
+
+```{r}
+ad.test(repair_sqrt$coating[repair_sqrt$damage=="Scratched"])
+ad.test(repair_sqrt$coating[repair_sqrt$damage=="Crushed"])
+ad.test(repair_sqrt$coating[repair_sqrt$damage=="Separated"])
+ad.test(repair_sqrt$coating[repair_sqrt$damage=="Breakage"])
+```
+
+**sheet_metal**
+
+```{r}
+ad.test(repair_sqrt$sheet_metal[repair_sqrt$damage=="Scratched"])
+ad.test(repair_sqrt$sheet_metal[repair_sqrt$damage=="Crushed"])
+ad.test(repair_sqrt$sheet_metal[repair_sqrt$damage=="Separated"])
+ad.test(repair_sqrt$sheet_metal[repair_sqrt$damage=="Breakage"])
+```
+
+**exchange**
+
+```{r}
+ad.test(repair_sqrt$exchange[repair_sqrt$damage=="Scratched"])
+ad.test(repair_sqrt$exchange[repair_sqrt$damage=="Crushed"])
+ad.test(repair_sqrt$exchange[repair_sqrt$damage=="Separated"])
+ad.test(repair_sqrt$exchange[repair_sqrt$damage=="Breakage"])
+```
+
+=\> 정규분포를 이루지 않으므로 **kruskal검정**으로 진행 <br> =\> 하지만
+표본수가 충분하므로 **중심극한정리**에 의해 정규분포를 이룬다고 가정한
+상태에서도 진행
+
+<br>
+
+#### (2) 등분산 확인
+
+```{r}
+bartlett.test(total~damage, data=repair_sqrt)
+bartlett.test(coating~damage, data=repair_sqrt)
+bartlett.test(sheet_metal~damage, data=repair_sqrt)
+bartlett.test(exchange~damage, data=repair_sqrt)
+```
+
+=\> 등분산을 이루지 않는다.
+
+<br>
+
+#### (3) One Way ANOVA
+
+**정규분포라 가정**
+
+```{r}
+oneway.test(total~damage, data=repair_sqrt, var.equal = F)
+oneway.test(coating~damage, data=repair_sqrt, var.equal = F)
+oneway.test(sheet_metal~damage, data=repair_sqrt, var.equal = F)
+oneway.test(exchange~damage, data=repair_sqrt, var.equal = F)
+```
+
+**정규분포가 아니면**
+
+```{r}
+kruskal.test(total~damage, data=repair_sqrt)
+kruskal.test(coating~damage, data=repair_sqrt)
+kruskal.test(sheet_metal~damage, data=repair_sqrt)
+kruskal.test(exchange~damage, data=repair_sqrt)
+```
+
+<br>
+
+#### (4) 사후 검정
+
+**정규분포라 가정**
+
+```{r}
+# result <- mctp(total~damage, data=repair_sqrt)
+# summary(result)
+# result <- mctp(coating~damage, data=repair_sqrt)
+# summary(result)
+# result <- mctp(sheet_metal~damage, data=repair_sqrt)
+# summary(result)
+# result <- mctp(exchange~damage, data=repair_sqrt)
+# summary(result)
+```
+
+**정규분포가 아니면**
+
+```{r}
+kruskalmc(repair_sqrt$total, repair_sqrt$damage)
+kruskalmc(repair_sqrt$coating, repair_sqrt$damage)
+kruskalmc(repair_sqrt$sheet_metal, repair_sqrt$damage)
+kruskalmc(repair_sqrt$exchange, repair_sqrt$damage)
+```
+
+<br>
+
+------------------------------------------------------------------------
+
+<h3><center>**RESULT**</center></h3>
+
+<br>
+
+<center>`파손 유형별 수리비용 차이 존재`</center>
+
+<br>
+
+<center>Preview</center>
+
+-   평균과 최댓값의 차이가 커 50만원 초과 제외 후 제곱근을 통해 수의
+    크기를 줄여줬지만 정규분포를 이루지 않음. <br>
+-   하지만 표본수가 Breakage은 37만개, Crushed은 43만개, Scratched은
+    98만개, Separated은 52만개 이상이므로 중심극한정리에 의해 정규분포를
+    이룬다고 가정한 후 두가지 방법으로 검정 진행
+
+<br>
+
+**total**
+
+| damage                | difference |  P-Value  |
+|-----------------------|:----------:|:---------:|
+| `Breakage-Crushed`    |    TRUE    | 0.0000000 |
+| `Breakage-Scratched`  | **FALSE**  | 0.9888212 |
+| `Breakage-Separated`  |    TRUE    | 0.0000000 |
+| `Crushed-Scratched`   |    TRUE    | 0.0000000 |
+| `Crushed-Separated`   |    TRUE    | 0.0000000 |
+| `Scratched-Separated` |    TRUE    | 0.0000000 |
+
+<br>
+
+**coating**
+
+| damage                | difference |   P-Value   |
+|-----------------------|:----------:|:-----------:|
+| `Breakage-Crushed`    |    TRUE    |  0.0000000  |
+| `Breakage-Scratched`  |    TRUE    |  0.0000000  |
+| `Breakage-Separated`  |    TRUE    |  0.0000000  |
+| `Crushed-Scratched`   |    TRUE    |  0.0000000  |
+| `Crushed-Separated`   |    TRUE    |  0.0000000  |
+| `Scratched-Separated` |    TRUE    | 0.002928318 |
+
+<br>
+
+**sheet_metal**
+
+| damage                | difference |   P-Value    |
+|-----------------------|:----------:|:------------:|
+| `Breakage-Crushed`    |    TRUE    |  0.0000000   |
+| `Breakage-Scratched`  |    TRUE    |  0.0000000   |
+| `Breakage-Separated`  |    TRUE    |  0.0000000   |
+| `Crushed-Scratched`   |    TRUE    |  0.0000000   |
+| `Crushed-Separated`   |    TRUE    |  0.0000000   |
+| `Scratched-Separated` |    TRUE    | 6.652105e-05 |
+
+<br>
+
+**exchange**
+
+| damage                | difference |   P-Value    |
+|-----------------------|:----------:|:------------:|
+| `Breakage-Crushed`    |    TRUE    |  0.0000000   |
+| `Breakage-Scratched`  |    TRUE    |  0.0000000   |
+| `Breakage-Separated`  |    TRUE    |  0.0000000   |
+| `Crushed-Scratched`   |    TRUE    |  0.0000000   |
+| `Crushed-Separated`   |    TRUE    | 1.031642e-05 |
+| `Scratched-Separated` |    TRUE    |  0.0000000   |
+
+<br>
+
+-   total에서 *Breakage-Scratched* 제외하고 전부 차이 존재
+-   각 수리방법마다 파손유형별 수리비용 차이 존재
+-   즉, *귀무가설 기각*
+-   **파손 유형별 수리비용 차이가 존재**한다고 할 수 있다.
+
+------------------------------------------------------------------------
+
+<br><br>
+
+## 2-3. 차량 색상별 수리비용 차이가 존재하는가?
+
+<br>
+
+-   귀무가설 : 차량 색상별 수리비용 차이가 존재하지 않는다.
+-   대립가설 : 차량 색상별 수리비용 차이가 존재한다.
+
+<br>
+
+### 2-3-1. Feature Review
+
+-   color(차량색상) : White(흰색), Gray tone(회색), Black(검은색), Blue
+    tone(파란색), Red tone(빨간색), Others(기타) <br>
+-   total(총지불금액) = coating(도장공임) + sheet_metal(판금수리) +
+    exchange(탈착교환)
+
+<br>
+
+**차량 색상별 변수 검토**
+
+```{r}
+table(repair_car_cy$color)
+```
+
+**차량 색상별 총 개수와 평균 수리비용 조회**
+
+```{r}
+mean_color <- repair_car_cy %>% group_by(color) %>% 
+                  summarise(mean_total = mean(total), mean_coating = mean(coating), 
+                            mean_sheet_metal = mean(sheet_metal),
+                            mean_exchange =mean(exchange),
+                            count = n())
+mean_color
+```
+
+<br>
+
+### 2-3-2. 시각화
+
+```{r}
+# 차량 색상에 따른 총 수리비용 평균과 분포 개수 확인 #
+theme_set(theme_bw())
+g1 <- ggplot(data = mean_color, aes(x=color, y=mean_total)) + geom_col() + 
+  labs(title="Total Price Mean")
+g2 <- ggplot(data = mean_color, aes(x=color, y=count)) + geom_col() + 
+  labs(title="COUNT")
+grid.arrange(g1, g2, ncol=2)
+```
+
+<br>
+
+### 2-3-3. 극단값 조정
+
+```{r}
+# 극단값 제거 
+repair_cy_sqrt <- subset(repair_car_cy, coating <= 5e+05 & sheet_metal <= 5e+05 & exchange <= 5e+05)
+
+# 정규화 해주기
+repair_cy_sqrt <- transform(repair_cy_sqrt, coating = sqrt(coating + 1))
+repair_cy_sqrt <- transform(repair_cy_sqrt, sheet_metal = sqrt(sheet_metal + 1))
+repair_cy_sqrt <- transform(repair_cy_sqrt, exchange = sqrt(exchange + 1))
+repair_cy_sqrt <- transform(repair_cy_sqrt, total = sqrt(total + 1))
+
+repair_cy_sqrt %>% head(7)
+```
+
+```{r}
+table(repair_cy_sqrt$color)
+```
+
+<br>
+
+### 2-3-4. Statistical Test
+
+#### (1) 정규분포 확인
+
+-   Blue tone, Red tone, Others는 5000개 이하이므로 shapiro test, 나머지
+    Anderson-Darling test 진행
+
+```{r}
+moonBook::densityplot(total~color, data=repair_cy_sqrt)
+moonBook::densityplot(coating~color, data=repair_cy_sqrt)
+moonBook::densityplot(sheet_metal~color, data=repair_cy_sqrt)
+moonBook::densityplot(exchange~color, data=repair_cy_sqrt)
+```
+
+**total**
+
+```{r}
+ad.test(repair_cy_sqrt$total[repair_cy_sqrt$color=="White"])
+ad.test(repair_cy_sqrt$total[repair_cy_sqrt$color=="Gray tone"])
+ad.test(repair_cy_sqrt$total[repair_cy_sqrt$color=="Black"])
+shapiro.test(repair_cy_sqrt$total[repair_cy_sqrt$color=="Blue tone"])
+shapiro.test(repair_cy_sqrt$total[repair_cy_sqrt$color=="Red tone"])
+shapiro.test(repair_cy_sqrt$total[repair_cy_sqrt$color=="Others"])
+```
+
+**coating**
+
+```{r}
+ad.test(repair_cy_sqrt$coating[repair_cy_sqrt$color=="White"])
+ad.test(repair_cy_sqrt$coating[repair_cy_sqrt$color=="Gray tone"])
+ad.test(repair_cy_sqrt$coating[repair_cy_sqrt$color=="Black"])
+shapiro.test(repair_cy_sqrt$coating[repair_cy_sqrt$color=="Blue tone"])
+shapiro.test(repair_cy_sqrt$coating[repair_cy_sqrt$color=="Red tone"])
+shapiro.test(repair_cy_sqrt$coating[repair_cy_sqrt$color=="Others"])
+```
+
+**sheet_metal**
+
+```{r}
+ad.test(repair_cy_sqrt$sheet_metal[repair_cy_sqrt$color=="White"])
+ad.test(repair_cy_sqrt$sheet_metal[repair_cy_sqrt$color=="Gray tone"])
+ad.test(repair_cy_sqrt$sheet_metal[repair_cy_sqrt$color=="Black"])
+shapiro.test(repair_cy_sqrt$sheet_metal[repair_cy_sqrt$color=="Blue tone"])
+shapiro.test(repair_cy_sqrt$sheet_metal[repair_cy_sqrt$color=="Red tone"])
+shapiro.test(repair_cy_sqrt$sheet_metal[repair_cy_sqrt$color=="Others"])
+```
+
+**exchange**
+
+```{r}
+ad.test(repair_cy_sqrt$exchange[repair_cy_sqrt$color=="White"])
+ad.test(repair_cy_sqrt$exchange[repair_cy_sqrt$color=="Gray tone"])
+ad.test(repair_cy_sqrt$exchange[repair_cy_sqrt$color=="Black"])
+shapiro.test(repair_cy_sqrt$exchange[repair_cy_sqrt$color=="Blue tone"])
+shapiro.test(repair_cy_sqrt$exchange[repair_cy_sqrt$color=="Red tone"])
+shapiro.test(repair_cy_sqrt$exchange[repair_cy_sqrt$color=="Others"])
+```
+
+=\> 정규분포를 이루지 않으므로 **kruskal검정**으로 진행 <br> =\> 하지만
+표본수가 충분하므로 **중심극한정리**에 의해 정규분포를 이룬다고 가정한
+상태에서도 진행
+
+<br>
+
+#### (2) 등분산 확인
+
+```{r}
+bartlett.test(total~color, data=repair_cy_sqrt)
+bartlett.test(coating~color, data=repair_cy_sqrt)
+bartlett.test(sheet_metal~color, data=repair_cy_sqrt)
+bartlett.test(exchange~color, data=repair_cy_sqrt)
+```
+
+=\> 등분산을 이루지 않는다.
+
+<br>
+
+#### (3) One Way ANOVA
+
+**정규분포라 가정**
+
+```{r}
+oneway.test(total~color, data=repair_cy_sqrt, var.equal = F)
+oneway.test(coating~color, data=repair_cy_sqrt, var.equal = F)
+oneway.test(sheet_metal~color, data=repair_cy_sqrt, var.equal = F)
+oneway.test(exchange~color, data=repair_cy_sqrt, var.equal = F)
+```
+
+**정규분포가 아니면**
+
+```{r}
+kruskal.test(total~color, data=repair_cy_sqrt)
+kruskal.test(coating~color, data=repair_cy_sqrt)
+kruskal.test(sheet_metal~color, data=repair_cy_sqrt)
+kruskal.test(exchange~color, data=repair_cy_sqrt)
+```
+
+<br>
+
+#### (4) 사후 검정
+
+**정규분포라 가정**
+
+```{r}
+# result <- mctp(total~color, data=repair_cy_sqrt)
+# summary(result)
+# result <- mctp(coating~color, data=repair_cy_sqrt)
+# summary(result)
+# result <- mctp(sheet_metal~color, data=repair_cy_sqrt)
+# summary(result)
+# result <- mctp(exchange~color, data=repair_cy_sqrt)
+# summary(result)
+```
+
+**정규분포가 아니면**
+
+```{r}
+kruskalmc(repair_cy_sqrt$total, repair_cy_sqrt$color)
+kruskalmc(repair_cy_sqrt$coating, repair_cy_sqrt$color)
+kruskalmc(repair_cy_sqrt$sheet_metal, repair_cy_sqrt$color)
+kruskalmc(repair_cy_sqrt$exchange, repair_cy_sqrt$color)
+```
+
+<br>
+
+------------------------------------------------------------------------
+
+<h3><center>**RESULT**</center></h3>
+
+<br>
+
+<center>`차량 색상별 수리비용 차이 존재`</center>
+
+<br>
+
+<center>Preview</center>
+
+-   평균과 최댓값의 차이가 커 50만원 초과 제외 후 제곱근을 통해 수의
+    크기를 줄여줬지만 정규분포를 이루지 않음. <br>
+-   하지만 표본수가 Black은 1만개, Blue tone은 3천개, Gray tone은 8천개,
+    Red tone은 1천개, White는 6만개, Others은 3천개 이상이므로
+    중심극한정리에 의해 정규분포를 이룬다고 가정한 후 두가지 방법으로
+    검정 진행
+
+<br>
+
+**total**
+
+| color                 | difference |  P-Value  |
+|-----------------------|:----------:|:---------:|
+| `Black-Blue tone`     | **FALSE**  | 0.5864245 |
+| `Black-Gray tone`     |    TRUE    | 0.0000017 |
+| `Black-Others`        |    TRUE    | 0.0000000 |
+| `Black-Red tone`      |    TRUE    | 0.0295961 |
+| `Black-White`         |    TRUE    | 0.0000000 |
+| `Blue tone-Gray tone` |    TRUE    | 0.0000228 |
+| `Blue tone-Others`    |    TRUE    | 0.0019538 |
+| `Blue tone-Red tone`  | **FALSE**  | 0.4800372 |
+| `Blue tone-White`     |    TRUE    | 0.0000000 |
+| `Gray tone-Others`    |    TRUE    | 0.0000000 |
+| `Gray tone-Red tone`  |    TRUE    | 0.0000036 |
+| `Gray tone-White`     |    TRUE    | 0.0000000 |
+| `Others-Red tone`     | **FALSE**  | 0.8894436 |
+| `Others-White`        |    TRUE    | 0.0000000 |
+| `Red tone-White`      |    TRUE    | 0.0000000 |
+
+<br>
+
+=\> 총 수리비용에선 **Black-Blue tone, Blue tone-Red tone, Others-Red
+tone**을 제외하고 차이 존재
+
+<br>
+
+**coating**
+
+| color                 | difference |  P-Value  |
+|-----------------------|:----------:|:---------:|
+| `Black-Blue tone`     |    TRUE    | 0.0054856 |
+| `Black-Gray tone`     |    TRUE    | 0.0007175 |
+| `Black-Others`        |    TRUE    | 0.0000000 |
+| `Black-Red tone`      | **FALSE**  | 0.9809038 |
+| `Black-White`         |    TRUE    | 0.0000000 |
+| `Blue tone-Gray tone` |    TRUE    | 0.0000001 |
+| `Blue tone-Others`    | **FALSE**  | 0.3055945 |
+| `Blue tone-Red tone`  | **FALSE**  | 0.6810480 |
+| `Blue tone-White`     |    TRUE    | 0.0000000 |
+| `Gray tone-Others`    |    TRUE    | 0.0000000 |
+| `Gray tone-Red tone`  | **FALSE**  | 0.1525979 |
+| `Gray tone-White`     |    TRUE    | 0.0000000 |
+| `Others-Red tone`     | **FALSE**  | 0.0346804 |
+| `Others-White`        |    TRUE    | 0.0000000 |
+| `Red tone-White`      |    TRUE    | 0.0000000 |
+
+<br>
+
+=\> 도장비용에선 **Black-Red tone, Blue tone-Others, Blue tone-Red tone,
+Gray tone-Red tone, Others-Red tone**을 제외하고 차이 존재
+
+<br>
+
+**sheet_metal**
+
+| color                 | difference |  P-Value  |
+|-----------------------|:----------:|:---------:|
+| `Black-Blue tone`     | **FALSE**  | 0.9959327 |
+| `Black-Gray tone`     |    TRUE    | 0.0003834 |
+| `Black-Others`        | **FALSE**  | 0.9021976 |
+| `Black-Red tone`      | **FALSE**  | 0.9004910 |
+| `Black-White`         |    TRUE    | 0.0000000 |
+| `Blue tone-Gray tone` |    TRUE    | 0.0193871 |
+| `Blue tone-Others`    | **FALSE**  | 0.9989730 |
+| `Blue tone-Red tone`  | **FALSE**  | 0.8317716 |
+| `Blue tone-White`     |    TRUE    | 0.0000000 |
+| `Gray tone-Others`    |    TRUE    | 0.0023013 |
+| `Gray tone-Red tone`  | **FALSE**  | 0.9480356 |
+| `Gray tone-White`     |    TRUE    | 0.0000000 |
+| `Others-Red tone`     | **FALSE**  | 0.6551673 |
+| `Others-White`        |    TRUE    | 0.0000000 |
+| `Red tone-White`      |    TRUE    | 0.0000000 |
+
+<br>
+
+=\> 판금수리비용에선 **Black-Blue tone, Black-Others, Black-Red tone,
+Blue tone-Others, Blue tone-Red tone, Gray tone-Red tone, Others-Red
+tone**을 제외하고 차이 존재
+
+<br>
+
+**exchange**
+
+| color                 | difference |  P-Value  |
+|-----------------------|:----------:|:---------:|
+| `Black-Blue tone`     | **FALSE**  | 0.9977150 |
+| `Black-Gray tone`     |    TRUE    | 0.0000848 |
+| `Black-Others`        |    TRUE    | 0.0000000 |
+| `Black-Red tone`      |    TRUE    | 0.0000000 |
+| `Black-White`         |    TRUE    | 0.0000000 |
+| `Blue tone-Gray tone` | **FALSE**  | 0.1523747 |
+| `Blue tone-Others`    |    TRUE    | 0.0000000 |
+| `Blue tone-Red tone`  |    TRUE    | 0.0000000 |
+| `Blue tone-White`     |    TRUE    | 0.0000000 |
+| `Gray tone-Others`    |    TRUE    | 0.0000000 |
+| `Gray tone-Red tone`  |    TRUE    | 0.0000000 |
+| `Gray tone-White`     |    TRUE    | 0.0000000 |
+| `Others-Red tone`     | **FALSE**  | 0.2036696 |
+| `Others-White`        |    TRUE    | 0.0000000 |
+| `Red tone-White`      |    TRUE    | 0.0000000 |
+
+<br>
+
+=\> 탈착교환비용에선 **Black-Blue tone, Blue tone-Gray tone, Others-Red
+tone**을 제외하고 차이 존재
+
+<br>
+
+-   **탈착교환**인 경우 색상별 수리비용 차이가 가장 다양하게 나타남.
+-   즉, 부분적으로 *귀무가설 기각* 가능
+-   **색상별 수리비용 차이가 존재**한다고 할 수 있다.
+
+------------------------------------------------------------------------
+
+<br><br>
+
+## 2-4. 같은 차종, 같은 파손일 때 차량 연식에 따라 수리비용 차이가 존재하는가?
+
+<br>
+
+-   귀무가설 : 차량 연식에 따른 수리비용 차이가 존재하지 않는다.
+-   대립가설 : 차량 연식에 따른 수리비용 차이가 존재한다.
+
+<br>
+
+### 2-4-1. Feature Review
+
+-   year(연식) : Before(2012 \~ 2016), After(2017 \~ 2021)
+-   total(총지불금액) = coating(도장공임) + sheet_metal(판금수리) +
+    exchange(탈착교환)
+
+<br>
+
+**Data Preparation**
+
+```{r}
+merge_car <- merge(repair_car[, c(-6)], repair_car_cy[, c(1, 6)], by="category_id")
+head(merge_car)
+```
+
+**연도별 변수 검토**
+
+```{r}
+table(merge_car$year)
+```
+
+**초반과 후반으로 구분**
+
+```{r}
+merge_car[merge_car$year <= 2016, "year2"] <- "Before"
+merge_car[merge_car$year > 2016, "year2"] <- "After"
+head(merge_car)
+```
+
+**중형의 연도와 데미지별 평균 수리비용과 개수 조회**
+
+```{r}
+mean_year <- merge_car[merge_car$supercategory_name=="Mid-size car", -1] %>% 
+                  group_by(year2, damage) %>% 
+                  summarise(mean_total = mean(total), mean_coating = mean(coating), 
+                            mean_sheet_metal = mean(sheet_metal), mean_exchange = mean(exchange),
+                            count = n())
+head(mean_year)
+```
+
+<br>
+
+### 2-4-2. 시각화
+
+```{r}
+# 차량 색상에 따른 총 수리비용 평균과 분포 개수 확인 #
+theme_set(theme_bw())
+g1 <- ggplot(data = mean_year, aes(x=year2, y=mean_total)) + geom_col() + 
+  labs(title="Total Price Mean")
+g2 <- ggplot(data = mean_year, aes(x=year2, y=count)) + geom_col() + 
+  labs(title="COUNT")
+grid.arrange(g1, g2, ncol=2)
+```
+
+<br>
+
+### 2-4-3. 극단값 조정
+
+```{r}
+# 극단값 제거 
+year_sqrt <- subset(merge_car[merge_car$supercategory_name=="Mid-size car", -1], 
+                    coating <= 5e+05 & sheet_metal <= 5e+05 & exchange <= 5e+05)
+
+# 정규화 해주기
+year_sqrt <- transform(year_sqrt, coating = sqrt(coating + 1))
+year_sqrt <- transform(year_sqrt, sheet_metal = sqrt(sheet_metal + 1))
+year_sqrt <- transform(year_sqrt, exchange = sqrt(exchange + 1))
+year_sqrt <- transform(year_sqrt, total = sqrt(total + 1))
+
+year_sqrt %>% head(7)
+```
+
+```{r}
+table(year_sqrt$year2, year_sqrt$damage)
+```
+
+<br>
+
+### 2-4-4. 가설 가정에 맞게 데이터 분할
+
+```{r}
+Breakage <- year_sqrt[year_sqrt$damage=="Breakage", c(-5, -7)]
+Crushed <- year_sqrt[year_sqrt$damage=="Crushed", c(-5, -7)]
+Scratched <- year_sqrt[year_sqrt$damage=="Scratched", c(-5, -7)]
+Separated <- year_sqrt[year_sqrt$damage=="Separated", c(-5, -7)]
+```
+
+```{r}
+boxplot(Breakage$total, Crushed$total, Scratched$total, Separated$total,
+        col=c("Tomato1", "Pink1", "Khaki1", "Light Steel Blue1"), main="파손 유형별 총 수리비용 분포도",
+        xlab="파손 유형",ylab="가격", names=c("Breakage","Crushed","Scratched", "Separated"))
+```
+
+<br>
+
+### 2-4-5. Statistical Test
+
+#### (1) 정규분포 확인
+
+```{r}
+moonBook::densityplot(total~year2, data=Breakage)
+moonBook::densityplot(total~year2, data=Crushed)
+moonBook::densityplot(total~year2, data=Scratched)
+moonBook::densityplot(total~year2, data=Separated)
+```
+
+**Mid-size car&Breakage**
+
+```{r}
+ad.test(Breakage$total[Breakage$year2=="Before"])
+ad.test(Breakage$total[Breakage$year2=="After"])
+```
+
+**Mid-size car&Crushed**
+
+```{r}
+ad.test(Crushed$total[Crushed$year2=="Before"])
+ad.test(Crushed$total[Crushed$year2=="After"])
+```
+
+**Mid-size car&Scratched**
+
+```{r}
+ad.test(Scratched$total[Scratched$year2=="Before"])
+ad.test(Scratched$total[Scratched$year2=="After"])
+```
+
+**Mid-size car&Separated**
+
+```{r}
+ad.test(Separated$total[Separated$year2=="Before"])
+ad.test(Separated$total[Separated$year2=="After"])
+```
+
+=\> 정규분포를 이루지 않으므로 **kruskal검정**으로 진행 <br> =\> 하지만
+표본수가 충분하므로 **중심극한정리**에 의해 정규분포를 이룬다고 가정한
+상태에서도 진행
+
+<br>
+
+#### (2) 등분산 확인
+
+```{r}
+bartlett.test(total~year2, data=Breakage)
+bartlett.test(total~year2, data=Crushed)
+bartlett.test(total~year2, data=Scratched)
+bartlett.test(total~year2, data=Separated)
+```
+
+=\> 등분산을 이루지 않는다.
+
+<br>
+
+#### (3) T-test
+
+**정규분포라 가정**
+
+```{r}
+t.test(total~year2, data=Breakage, alt="two.sided", var.equal=F)
+t.test(total~year2, data=Crushed, alt="two.sided", var.equal=F)
+t.test(total~year2, data=Scratched, alt="two.sided", var.equal=F)
+t.test(total~year2, data=Separated, alt="two.sided", var.equal=F)
+```
+
+**정규분포가 아니면**
+
+```{r}
+wilcox.test(Breakage$total[Breakage$year2=="Before"], Breakage$total[Breakage$year2=="After"])
+wilcox.test(Crushed$total[Crushed$year2=="Before"], Crushed$total[Crushed$year2=="After"])
+wilcox.test(Scratched$total[Scratched$year2=="Before"], Scratched$total[Scratched$year2=="After"])
+wilcox.test(Separated$total[Separated$year2=="Before"], Separated$total[Separated$year2=="After"])
+```
+
+<br>
+
+------------------------------------------------------------------------
+
+<h3><center>**RESULT**</center></h3>
+
+<br>
+
+<center>`같은 차종, 같은 파손일 때 차량 연식에 따라 수리비용 차이 존재`</center>
+
+<br>
+
+<center>Preview</center>
+
+-   3가지 차종의 비교 과정을 전부 보이면 양이 너무 많아져 중형과 총
+    수리비용을 갖고서 대표적으로 검정 진행. <br>
+-   평균과 최댓값의 차이가 커 50만원 초과 제외 후 제곱근을 통해 수의
+    크기를 줄여줬지만 정규분포를 이루지 않음. <br>
+-   하지만 표본수가 Before(2012 \~ 2016)은 5만개, After(2017 \~ 2021)은
+    6만개 이상이므로 중심극한정리에 의해 정규분포를 이룬다고 가정한 후
+    두가지 방법으로 검정 진행(소형과 대형 또한 같음)
+
+<br>
+
+**Mid-size car**
+
+| damage      |   Welch    |  Wilcoxon  |
+|-------------|:----------:|:----------:|
+| `Breakage`  | \< 2.2e-16 | \< 2.2e-16 |
+| `Crushed`   | \< 2.2e-16 | \< 2.2e-16 |
+| `Scratched` | \< 2.2e-16 | \< 2.2e-16 |
+| `Separated` | \< 2.2e-16 | \< 2.2e-16 |
+
+<br>
+
+**Compact car**
+
+| damage      |   Welch    |  Wilcoxon  |
+|-------------|:----------:|:----------:|
+| `Breakage`  | \< 2.2e-16 | \< 2.2e-16 |
+| `Crushed`   | \< 2.2e-16 | \< 2.2e-16 |
+| `Scratched` | \< 2.2e-16 | \< 2.2e-16 |
+| `Separated` | \< 2.2e-16 | \< 2.2e-16 |
+
+<br>
+
+**Full-size car**
+
+| damage      |   Welch   | Wilcoxon  |
+|-------------|:---------:|:---------:|
+| `Breakage`  | 0.0420600 | 0.0349000 |
+| `Crushed`   | 0.0001469 | 0.0004865 |
+| `Scratched` | 0.0000000 | 0.0000000 |
+| `Separated` | 0.0000753 | 0.0000424 |
+
+<br>
+
+-   각 차량연식마다 총 수리비용 차이 존재
+-   즉, *귀무가설 기각*
+-   **차량 연식에 따라 수리비용 차이 존재**한다고 할 수 있다.
+
+------------------------------------------------------------------------

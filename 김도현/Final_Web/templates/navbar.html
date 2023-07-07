@@ -1,0 +1,49 @@
+<style>
+  .custom-navbar {
+    background-color: #be0013; /* 원하는 색상 코드로 변경하세요 */
+    color: #FFFFFF; /* 텍스트 색상을 지정하세요 */
+  }
+</style>
+  
+<nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+      {% if session['id'] %}
+        {{session['id']}} 님 환영합니다.
+      {% else %}
+        whw rkx ek !
+      {% endif %}
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">회원 가입</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            회원 전용 서비스
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">마이 페이지</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/board">사고 기록 게시판</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          {% if session['id'] %}
+            <a class="nav-link" href="/logout">로그아웃</a>
+          {% else %}
+            <a class="nav-link" href="/login">로그인</a>
+          {% endif %}
+        </li>
+      </ul>
+      
+    </div>
+  </div>
+</nav>
