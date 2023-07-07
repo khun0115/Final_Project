@@ -31,9 +31,7 @@
         .custom-button {
             margin-top: 10px;
             background-color: #423d3bbb;
-            /* 원하는 색상 코드로 변경하세요 */
             color: #FFFFFF;
-            /* 텍스트 색상을 지정하세요 */
             font-size: 24px;
             font-weight: bold;
             width: 500px;
@@ -45,7 +43,16 @@
             --bs-btn-padding-y: 1rem;
             --bs-btn-padding-x: 135px;
             --bs-btn-font-size: 0.5rem;
-            
+        }
+
+        .offcanvas-button {
+            background-color: #264eff;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: 3px solid rgb(255, 255, 255);
+            border-radius: 10px;
         }
 
 
@@ -59,12 +66,28 @@
         }
 
         .thumbnail-grid .thumbnail {
-            width: 150px;
-            height: 150px;
+            width: 125px;
+            height: 125px;
             background-color: #5a585c;
-            border: 5px solid #e41111;
+            border: 5px solid #f16d6d;
             cursor: auto;
             position: relative;
+        }
+
+        .thumbnail {
+            width: 125px;
+            height: 125px;
+            background-color: #5a585c;
+            border: 5px solid #f16d6d;
+            cursor: auto;
+            position: relative;
+            background-image: none;
+            /* 배경 이미지 없애기 */
+            /* 내용을 비워주는 방법은 다음 중 하나를 선택하여 사용하세요 */
+            /* 내용을 빈 문자열로 설정 */
+            content: "";
+            /* 내용을 공백 문자로 설정 */
+            content: " ";
         }
 
         .thumbnail-grid .thumbnail::before {
@@ -128,7 +151,6 @@
 
         .form-check-label {
             font-size: 20px;
-
             font-weight: bold;
         }
 
@@ -138,6 +160,12 @@
             margin-right: auto;
             border: 1px solid #ccc;
             border-radius: 5px;
+        }
+
+        .custom-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </body>

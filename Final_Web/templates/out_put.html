@@ -11,8 +11,10 @@
   {% include 'navbar.html' %}
   <h1>결과창</h1>
 
-  <h2>{{part_output }}</h2>
-  <h2>{{damage_type_output}}</h2>
+  <h2>{{part_output['char_type'] }}</h2>
+  <h2>{{'파손 부위', part_output}}</h2>
+  <h2>{{'파손 유형', damage_type_output}}</h2>
+  <h2>{{'교환 HQ', hq_output[0]}}</h2>
 </body>
 </html>
 <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
