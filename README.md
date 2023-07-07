@@ -8,9 +8,8 @@
 
 ## 올라간 자료
 현재 FINAL_PROJECT G-DRIVE 
->Breakeage.zip => <br>
->Train의 국산차이면서 손상유형이 1,2개고 견적서에 있는 <br>
->Label 데이터(json)를 손상 유형별로 구분
+>car_damage_image.zip => <br>
+>Train의 국산차이면서 손상유형이 1,2개고 견적서에 있는 src 데이터(jpg)를 손상 유형별로 구분
 ---
     
     
