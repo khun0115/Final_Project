@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Style</title>
+</head>
+
+<body>
+    <style>
+        .custom-border {
+            border: 3px solid rgb(255, 255, 255);
+            border-radius: 10px;
+
+        }
+
+        .container {
+            /* margin: 40px; */
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .model_image {
+            width: 500px;
+            height: 500px;
+            margin: 60px;
+            margin-bottom: 10px;
+        }
+
+        .custom-button {
+            margin-top: 10px;
+            background-color: #423d3bbb;
+            color: #FFFFFF;
+            font-size: 24px;
+            font-weight: bold;
+            width: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 60px;
+
+            --bs-btn-padding-y: 1rem;
+            --bs-btn-padding-x: 135px;
+            --bs-btn-font-size: 0.5rem;
+        }
+
+        .offcanvas-button {
+            background-color: #264eff;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: 3px solid rgb(255, 255, 255);
+            border-radius: 10px;
+        }
+
+
+
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 150px);
+            grid-template-rows: repeat(2, 150px);
+            grid-gap: 10px;
+
+        }
+
+        .thumbnail-grid .thumbnail {
+            width: 125px;
+            height: 125px;
+            background-color: #5a585c;
+            border: 5px solid #f16d6d;
+            cursor: auto;
+            position: relative;
+        }
+
+        .thumbnail {
+            width: 125px;
+            height: 125px;
+            background-color: #5a585c;
+            border: 5px solid #f16d6d;
+            cursor: auto;
+            position: relative;
+            background-image: none;
+            /* 배경 이미지 없애기 */
+            /* 내용을 비워주는 방법은 다음 중 하나를 선택하여 사용하세요 */
+            /* 내용을 빈 문자열로 설정 */
+            content: "";
+            /* 내용을 공백 문자로 설정 */
+            content: " ";
+        }
+
+        .thumbnail-grid .thumbnail::before {
+            content: "";
+            position: absolute;
+            left: 10px;
+            /* 시작 위치를 조정합니다 */
+            right: 10px;
+            /* 끝 위치를 조정합니다 */
+            top: 50%;
+            /* 수평선의 위치를 조정합니다 */
+            height: 3px;
+            background-color: #ffffff;
+            /* 수평선의 색상을 설정합니다 */
+            transform: translateY(-50%);
+            /* 수평선을 수직 중앙에 위치시킵니다 */
+            z-index: 1;
+        }
+
+        .thumbnail-grid .thumbnail::after {
+            content: "";
+            position: absolute;
+            top: 10px;
+            /* 시작 위치를 조정합니다 */
+            bottom: 10px;
+            /* 끝 위치를 조정합니다 */
+            left: 50%;
+            /* 수직선의 위치를 조정합니다 */
+            width: 3px;
+            background-color: #ffffff;
+            /* 수직선의 색상을 설정합니다 */
+            transform: translateX(-50%);
+            /* 수직선을 수평 중앙에 위치시킵니다 */
+            z-index: 1;
+        }
+
+
+        .placeholder {
+            border: 1px dashed #ccc;
+            background-color: #f9f9f9;
+        }
+
+        .custom-button:hover {
+            background-color: #f16d6d;
+            /* 마우스 호버 시의 색상으로 변경하세요 */
+        }
+
+        .center-block {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+
+        .radio-select-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 20px;
+
+        }
+
+        .form-check-label {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .custom-image {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .custom-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</body>
+
+</html>
