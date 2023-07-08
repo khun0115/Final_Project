@@ -15,11 +15,10 @@
 
 [유영익] : 데이터 수집, 전처리, 데이터 분석, DB제작, PPT제작
 
-## 사용언어
+## 📝Package📝
 <a href="https://www.python.org/" target="_blank"><img src="https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white"/></a>
 <a href="https://www.r-project.org/" target="_blank"><img src="https://img.shields.io/badge/R-276DC3?style=flat&logo=r&logoColor=white"/></a>
-<a href="https://jupyter.org/" target="_blank"><img src="https://img.shields.io/badge/Jupyter-F37626?style=flat&logo=jupyter&logoColor=white"/></a>
-[![Google Colab](https://img.shields.io/badge/Google%20Colab-F9AB00?style=flat&logo=google-colab&logoColor=white)](https://colab.research.google.com/your-notebook-link)
+
 [![Pandas](https://img.shields.io/badge/Pandas-150458?style=flat&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![NumPy](https://img.shields.io/badge/NumPy-013243?style=flat&logo=numpy&logoColor=white)](https://numpy.org/)
 [![ggplot2](https://img.shields.io/badge/ggplot2-FC4E07?style=flat&logo=ggplot2&logoColor=white)](https://ggplot2.tidyverse.org/)
@@ -34,6 +33,8 @@
 [![Synology Chat](https://img.shields.io/badge/%EC%8B%9C%EB%86%80%EB%A1%9C%EC%A7%80%EC%B1%97-4A90E2?style=flat&logo=synology&logoColor=white)](https://www.synology.com/ko-kr/dsm/feature/chat)
 [![PowerPoint](https://img.shields.io/badge/PowerPoint-B7472A?style=flat&logo=microsoft-powerpoint&logoColor=white)](https://www.microsoft.com/en-us/microsoft-365/powerpoint)
 [![Visual Studio Code](https://img.shields.io/badge/VS%20Code-007ACC?style=flat&logo=visual-studio-code&logoColor=white)](https://code.visualstudio.com/)
+<a href="https://jupyter.org/" target="_blank"><img src="https://img.shields.io/badge/Jupyter-F37626?style=flat&logo=jupyter&logoColor=white"/></a>
+[![Google Colab](https://img.shields.io/badge/Google%20Colab-F9AB00?style=flat&logo=google-colab&logoColor=white)](https://colab.research.google.com/your-notebook-link)
 
 ## 1. 프로젝트 소개
 본 프로젝트는 자동차 사고 시 발생하는 다양한 유형의 사고 이미지를 분석하여 손상 유형,
