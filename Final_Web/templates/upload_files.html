@@ -24,21 +24,26 @@
       <br>
       <div class="custom-center">
         <div style="margin-right: 40px">
-          <span class="badge text-bg-dark"> 예시 사진 </span>
+          <span class="badge text-bg-dark" style="font-size: 25px;"> 예시 사진 </span>
           <img src="{{url_for('static', filename='menu/rear_fender_ex.jpg')}} "
-            class="img-thumbnail rounded mx-auto d-block custom-image" alt="예시사진" style="height: 200px; width: 200px;">
+            class="img-thumbnail rounded mx-auto d-block custom-image" alt="예시사진" style="height: 300px; width: 300px;">
         </div>
         <div>
-          <span class="badge text-bg-dark"> 미리 보기 </span>
-          
+          <span class="badge text-bg-dark" style="font-size: 25px;"> 미리 보기 </span>
+          <img src="{{url_for('static', filename='menu/')}} " class="img-thumbnail rounded mx-auto d-block custom-image"
+            alt="업로드사진" style="height: 300px; width: 300px;">
+
         </div>
 
       </div>
       <br>
-      <div class="custom-center">
-        <input type="file" name="part_img_file" />
-        <button type="submit">업로드</button>
-      </div>
+      <!-- <div class="custom-center">
+        <form action="/upload_damage_type" method="POST" >
+          <input type="file" name="part_img_file" />
+          <button type="submit">업로드</button>
+        </form>
+
+      </div> -->
 
     </div>
     <div class="container custom-border">
@@ -48,78 +53,81 @@
       </span>
 
 
-      <form action="/upload_damage_type" method="POST" enctype="multipart/form-data">
+      <!-- <form action="/upload_damage_type" method="POST" enctype="multipart/form-data">
         <br>
         <div class="thumbnail-grid custom-center" id="thumbnails" style="margin-bottom: 20px;"></div>
         <div class="custom-center">
           <input type="file" name="damage_type_image" id="imageUpload" multiple>
           <button type="submit">업로드</button>
         </div>
-      </form>
-    </div>
-  </div>
+      </form> -->
+      <div class="custom-center">
+        <form action="/upload_damage_type" method="POST" enctype="multipart/form-data">
+          <span class="badge text-bg-primary" style="font-size: 17px;">부위사진</span>
+          <input type="file" name="part_img_file" />
 
+          <span class="badge text-bg-primary" style="font-size: 17px;">상처사진</span>
+          <input type="file" name="damage_type_image" id="imageUpload" multiple>
 
+          <button type="submit">업로드</button>
+        </form>
+      </div>
 
+      <div class="thumbnail-grid custom-center" id="thumbnails" style="margin-bottom: 20px;"></div>
 
+      <script>
+        const imageUpload = document.getElementById('imageUpload');
+        const thumbnailsContainer = document.getElementById('thumbnails');
 
-  <script>
+        imageUpload.addEventListener('change', handleImageUpload);
 
+        function handleImageUpload(event) {
+          const files = Array.from(imageUpload.files);
+          const maxFiles = 10; // 최대 파일 개수
 
-    const imageUpload = document.getElementById('imageUpload');
-    const thumbnailsContainer = document.getElementById('thumbnails');
+          if (files.length > maxFiles) {
+            alert(`최대 ${maxFiles}개의 파일만 선택할 수 있습니다.`);
+            imageUpload.value = ''; // 파일 선택 취소
+            return;
+          }
 
-    imageUpload.addEventListener('change', handleImageUpload);
+          thumbnailsContainer.innerHTML = '';
 
-    // 초기 그리드 표시
-    handleImageUpload();
+          const totalSlots = 10; // 썸네일 자리의 총 개수
+          const emptySlots = totalSlots - files.length; // 빈 자리의 개수
 
-    function handleImageUpload(event) {
-      const files = imageUpload.files;
-      const maxFiles = 10; // 최대 파일 개수
+          files.forEach((file) => {
+            const reader = new FileReader();
 
-      if (files.length > maxFiles) {
-        alert(`최대 ${maxFiles}개의 파일만 선택할 수 있습니다.`);
-        imageUpload.value = ''; // 파일 선택 취소
-        return;
-      }
+            reader.onload = function (e) {
+              const thumbnail = document.createElement('img');
+              thumbnail.src = e.target.result;
+              thumbnail.classList.add('thumbnail');
+              thumbnailsContainer.appendChild(thumbnail);
+            };
 
-      thumbnailsContainer.innerHTML = '';
+            reader.readAsDataURL(file);
+          });
 
-      const totalSlots = 10; // 썸네일 자리의 총 개수
-      const emptySlots = totalSlots - files.length; // 빈 자리의 개수
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const reader = new FileReader();
-
-        reader.onload = function (e) {
-          const thumbnail = document.createElement('img');
-          thumbnail.src = e.target.result;
-          thumbnail.classList.add('thumbnail');
-          thumbnailsContainer.appendChild(thumbnail);
+          for (let i = 0; i < emptySlots; i++) {
+            const placeholder = document.createElement('div');
+            placeholder.classList.add('thumbnail', 'placeholder');
+            thumbnailsContainer.appendChild(placeholder);
+          }
         }
-
-        reader.readAsDataURL(file);
-      }
-
-      for (let i = 0; i < emptySlots; i++) {
-        const placeholder = document.createElement('div');
-        placeholder.classList.add('thumbnail', 'placeholder');
-        thumbnailsContainer.appendChild(placeholder);
-      }
-    }
-  </script>
+      </script>
 
 
 
 
-  </div>
-  <div class="d-flex justify-content-center">
-    <a href="/out_put" class="btn custom-button btn-lg custom-button:hover" style="width: 50%;">
-      가격 알아보러 가기
-    </a>
-  </div>
+
+
+    </div>
+    <div class="d-flex justify-content-center">
+      <a href="/out_put" class="btn custom-button btn-lg custom-button:hover" style="width: 50%;">
+        가격 알아보러 가기
+      </a>
+    </div>
 
 </body>
 

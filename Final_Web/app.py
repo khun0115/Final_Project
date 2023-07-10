@@ -11,6 +11,7 @@ from tensorflow.keras.layers import Conv2D, MaxPool2D, Dropout
 from tensorflow.keras.layers import GlobalAveragePooling2D
 from tensorflow.keras.optimizers import SGD, Adam, RMSprop
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = 'aaa'
@@ -46,24 +47,42 @@ def cnn():
 
 @app.route('/yolo')
 def yolo():
-    colors = ['그레이', '레드', '블랙', '블루', '실버', '오렌지', '화이트']
-    return render_template('yolo.html', colors=colors)
+    
+    return render_template('yolo.html')
 
 
 @app.route('/upload_damage_type', methods=['POST'])
 def upload():
-    uploaded_file = request.files['damage_type_image']
+    if 'damage_type_image' in request.files:
+        uploaded_type_files = request.files.getlist('damage_type_image')
+        for uploaded_file in uploaded_type_files:
+            # 파일 저장
+            filename = secure_filename(uploaded_file.filename)
+            file_path = f'Final_Web/static/input_images/car_damage_type/client_input/{filename}'
+            uploaded_file.save(file_path)
 
-    if uploaded_file:
-        # 파일 저장
-        filename = uploaded_file.filename
-        file_path = f'Final_Web/static/input_images/car_damage_type/client_input/{filename}'
-        uploaded_file.save(file_path)
+    if 'part_img_file' in request.files:
+        uploaded_part_file = request.files['part_img_file']
+        filename = secure_filename(uploaded_part_file.filename)
+        file_path = f'Final_Web/static/input_images/car_part/part_img/{filename}'
+        uploaded_part_file.save(file_path)
+
+    # if uploaded_type_file:
+    #     # 파일 저장
+    #     filename = uploaded_type_file.filename
+    #     file_path = f'Final_Web/static/input_images/car_damage_type/client_input/{filename}'
+    #     uploaded_type_file.save(file_path)
+
+    # if uploaded_part_file:
+    #     # 파일 저장
+    #     filename = uploaded_part_file.filename
+    #     file_path = f'Final_Web/static/input_images/car_part/part_img/{filename}'
+    #     uploaded_part_file.save(file_path)
 
         # 세션에 이미지 파일 경로 저장
-        session['uploaded_image'] = file_path
+        # session['uploaded_image'] = file_path
 
-    return render_template('upload_files.html', damage_type_img=session['uploaded_image'])
+    return render_template('upload_files.html') #, damage_type_img=session['uploaded_image']
 
 
 @app.route('/upload_yolo', methods=['POST'])
@@ -88,7 +107,7 @@ def upload2():
     #         --save-dir {output_path}"
 
 
-    return render_template('upload_files.html', damage_type_img=session['uploaded_image'])
+    return render_template('upload_yolo.html')
 
 
 # 수정중 ㅁ?ㄹ                                  --논의 필요
