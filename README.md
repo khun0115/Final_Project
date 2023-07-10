@@ -1,19 +1,19 @@
 # Final_Project
 
 ## 팀원소개
-[김현욱] : 팀장, 데이터 수집, 전처리, DB제작, 통계검증, DL/ML 모델학습
+[김현욱](https://github.com/khun0115/Final_Project/tree/master/%EA%B9%80%ED%98%84%EC%9A%B1) : 팀장, 데이터 수집, 전처리, DB제작, 통계검증, DL/ML 모델학습
 
-[고은경] : 데이터 수집, 전처리, 데이터 분석, 통계검증, ML 모델학습
+[고은경](https://github.com/khun0115/Final_Project/tree/master/%EA%B3%A0%EC%9D%80%EA%B2%BD) : 데이터 수집, 전처리, 데이터 분석, 통계검증, ML 모델학습
 
-[김도현] : 데이터 수집, 전처리, 데이터 분석, DL/ML 모델학습, 웹페이지 제작
+[김도현](https://github.com/khun0115/Final_Project/tree/master/%EA%B9%80%EB%8F%84%ED%98%84) : 데이터 수집, 전처리, 데이터 분석, DL/ML 모델학습, 웹페이지 제작
 
-[김이경] : 데이터 수집, 전처리, 데이터 분석, 모델학습
+[김이경](https://github.com/khun0115/Final_Project/tree/master/%EA%B9%80%EC%9D%B4%EA%B2%BD) : 데이터 수집, 전처리, 데이터 분석, 모델학습
 
-[엄진성] : 데이터 수집, 전처리, 데이터 분석, DL 모델학습, YOLO 모델학습
+[엄진성](https://github.com/khun0115/Final_Project/tree/master/%EC%97%84%EC%A7%84%EC%84%B1) : 데이터 수집, 전처리, 데이터 분석, DL 모델학습, YOLO 모델학습
 
-[오원석] : 데이터 수집, 전처리, 데이터 분석, DL 모델학습, 발표
+[오원석](https://github.com/khun0115/Final_Project/tree/master/%EC%98%A4%EC%9B%90%EC%84%9D) : 데이터 수집, 전처리, 데이터 분석, DL 모델학습, 발표
 
-[유영익] : 데이터 수집, 전처리, 데이터 분석, DB제작, PPT제작
+[유영익](https://github.com/khun0115/Final_Project/tree/master/%EC%9C%A0%EC%98%81%EC%9D%B5) : 데이터 수집, 전처리, 데이터 분석, DB제작, PPT제작
 
 ## 📝Package📝
 <a href="https://www.python.org/" target="_blank"><img src="https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white"/></a>
@@ -41,7 +41,11 @@
 손상 부위 등을 도출하고 이를 기반으로 차량의 예상 수리시간 및  비용을 예측하는 목적을 가지고 있다.
 차량 사고 이후 공업사마다 각기 다른 수리비용이 다르기에 정확하게 수리비용을 예측하여 불이익을 당하지 않고자 이번 프로젝트를 진행
 
-## 2. 데이터 출처
+## 2. 일정 및 계획
+![image](https://github.com/khun0115/Final_Project/assets/127808901/acf709db-86a3-4f07-87aa-2c1651d93f35)
+
+
+## 3. 데이터 출처
 차량파손 이미지 : [Ai-Hub](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=&topMenu=&aihubDataSe=realm&dataSetSn=581)
 
 차량 부위별 이미지 : [Ai-hub](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100)
@@ -49,4 +53,13 @@
 부품별 가격 데이터 : [HYUNDAI MOBIS](https://www.mobis-as.com/simple_search_part.do)
 
 
-## 데이터 분석 및 전처리
+## 4. 프로젝트 수행 결과
+
+
+### 2) 통계검증
+    ① 통계검증
+      ANOVA, t검정을 이용하여 변수가 가격에 유의미한 영향을 미치는지 판단하기 위한 검정으로
+      모든 변수에 영향을 끼치는걸로 판단.
+![image](https://github.com/khun0115/Final_Project/assets/127808901/9443ce5a-bb6a-4e02-b12f-2a04cba02c3c)
+
+      
