@@ -14,134 +14,7 @@
 
 <body>
   {% include 'navbar.html' %}
-  <!-- navbar이하 form으로 묶음 -->
-  <form method="post" action="/upfile" enctype="multipart/form-data"></form>
-  <br>
-  <form class="container d-flex justify-content-center radio-select-container">
-    <div>
-      <span class="badge text-bg-danger"
-        style="font-size: 20px; padding: 8px 12px; display: inline-flex; align-items: center; justify-content: center;">
-        제조사
-      </span>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"
-          onchange="updateStep2()">
-        <label class="form-check-label form-check-label" for="flexRadioDefault1">
-          기아
-        </label>
-      </div>
-
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2"
-          onchange="updateStep2()">
-        <label class="form-check-label form-check-label" for="flexRadioDefault2">
-          삼성
-        </label>
-      </div>
-
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3"
-          onchange="updateStep2()">
-        <label class="form-check-label form-check-label" for="flexRadioDefault3">
-          현대
-        </label>
-      </div>
-    </div>
-
-
-    <span class="badge text-bg-danger"
-      style="font-size: 20px; padding: 8px 12px; display: inline-flex; align-items: center; justify-content: center;">
-      차종
-    </span>
-    <select id="step2" onchange="updateStep3()" disabled>
-      <option value="">제조사별 차종</option>
-    </select>
-
-    <span class="badge text-bg-danger"
-      style="font-size: 20px; padding: 8px 12px; display: inline-flex; align-items: center; justify-content: center;">
-      연식
-    </span>
-    <select id="step3" onchange="updateStep4()" disabled>
-      <option value="">연식</option>
-    </select>
-
-    <span class="badge text-bg-danger"
-      style="font-size: 20px; padding: 8px 12px; display: inline-flex; align-items: center; justify-content: center;">
-      색상
-    </span>
-    <select id="step4">
-      <option value="">선택하세요</option>
-      {% for color in colors%}
-      <option value="{{ color }}">{{ color }}</option>
-      {% endfor %}
-    </select>
-
-    <script>
-      function updateStep2() {
-        var step1Value = document.querySelector('input[name="flexRadioDefault"]:checked').id;
-        var step2Select = document.getElementById("step2");
-
-        // 선택된 값에 따라 다음 셀렉트 박스의 옵션 설정
-        if (step1Value === "flexRadioDefault1") {
-          step2Select.innerHTML = `
-            <option value="suboption1">기아의 차종</option>
-            <option value="suboption2">모닝</option>
-            <option value="suboption3">K3</option>
-            <option value="suboption4">K5</option>
-            <option value="suboption5">K7</option>
-            <option value="suboption6">K9</option>
-            <option value="suboption7">카니발</option>
-            <option value="suboption8">쏘렌토</option>
-            <option value="suboption9">샐토스</option>
-            <option value="suboption10">레이</option>
-          `;
-        } else if (step1Value === "flexRadioDefault2") {
-          step2Select.innerHTML = `
-            <option value="suboption11">삼성의 차종</option>
-            <option value="suboption12">QM3</option>
-          `;
-        } else if (step1Value === "flexRadioDefault3") {
-          step2Select.innerHTML = `
-            <option value="suboption13">현대의 차종</option>
-            <option value="suboption14">투싼</option>
-            <option value="suboption15">제네시스G80</option>
-            <option value="suboption16">제네시스GV70</option>
-            <option value="suboption17">제네시스GV80</option>
-            <option value="suboption18">그랜저</option>
-            <option value="suboption19">아반떼</option>
-            <option value="suboption20">소나타</option>
-            <option value="suboption21">코나</option>
-          `;
-        }
-
-        // 다음 셀렉트 박스를 활성화
-        step2Select.disabled = false;
-
-        updateStep3(); // 뒷 단계도 함께 업데이트
-      }
-
-      function updateStep3() {
-        var step2Value = document.getElementById("step2").value;
-        var step3Select = document.getElementById("step3");
-
-        // 선택된 값에 따라 다음 셀렉트 박스의 옵션 설정
-        if (step2Value === "") {
-          step3Select.innerHTML = "<option value=''>차종의 연식</option>";
-        } else {
-          step3Select.disabled = false;
-
-          for (var i = 8; i < 24; i++) {
-            var value = i < 10 ? `0${i}` : i;
-            step3Select.innerHTML += `<option value="suboption1_sub1">${value}</option>`;
-          }
-
-
-
-        }
-      }
-    </script>
-  </form>
-
+  <br><br><br>
 
   <div>
     <div class="container custom-border">
@@ -173,6 +46,56 @@
           <button type="submit">업로드</button>
         </div>
       </form>
+
+      <script>
+
+
+        const imageUpload = document.getElementById('imageUpload');
+        const thumbnailsContainer = document.getElementById('thumbnails');
+
+        imageUpload.addEventListener('change', handleImageUpload);
+
+        // 초기 그리드 표시
+        handleImageUpload();
+
+        function handleImageUpload(event) {
+          const files = imageUpload.files;
+          const maxFiles = 10; // 최대 파일 개수
+
+          if (files.length > maxFiles) {
+            alert(`최대 ${maxFiles}개의 파일만 선택할 수 있습니다.`);
+            imageUpload.value = ''; // 파일 선택 취소
+            return;
+          }
+
+          thumbnailsContainer.innerHTML = '';
+
+          const totalSlots = 10; // 썸네일 자리의 총 개수
+          const emptySlots = totalSlots - files.length; // 빈 자리의 개수
+
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+              const thumbnail = document.createElement('img');
+              thumbnail.src = e.target.result;
+              thumbnail.classList.add('thumbnail');
+              thumbnailsContainer.appendChild(thumbnail);
+            }
+
+            reader.readAsDataURL(file);
+          }
+
+          for (let i = 0; i < emptySlots; i++) {
+            const placeholder = document.createElement('div');
+            placeholder.classList.add('thumbnail', 'placeholder');
+            thumbnailsContainer.appendChild(placeholder);
+          }
+        }
+      </script>
+
+
 
     </div>
 
