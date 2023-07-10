@@ -4,14 +4,12 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 import joblib
-import subprocess
-from tensorflow.keras.models import Sequential, load_model, Model
-from tensorflow.keras.layers import Dense, Flatten, Input, concatenate
-from tensorflow.keras.layers import Conv2D, MaxPool2D, Dropout
-from tensorflow.keras.layers import GlobalAveragePooling2D
-from tensorflow.keras.optimizers import SGD, Adam, RMSprop
+import shutil
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from werkzeug.utils import secure_filename
+from glob import glob
+from ultralytics import YOLO
+import time
 
 app = Flask(__name__)
 app.secret_key = 'aaa'
@@ -20,34 +18,52 @@ app.secret_key = 'aaa'
 UPLOAD_FOLDER = '/path/to/save/folder'  # 저장할 폴더 경로
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# 이전 사용 이미지 있으면 삭제
+if os.path.exists("C:/GitTest/Final_Project/runs"):
+    shutil.rmtree("C:/GitTest/Final_Project/runs")
+if len(os.listdir('Final_Web/static/input_images/yolo_input')) != 0:
+    file_list = glob('Final_Web/static/input_images/yolo_input/*')
+    for file_path in file_list:
+        os.remove(file_path)
+
+if len(os.listdir('Final_Web/static/output_images')) != 0:
+    file_list = glob('Final_Web/static/output_images/*')
+    for file_path in file_list:
+        os.remove(file_path)
+
+if len(os.listdir('Final_Web/static/input_images/car_damage_type/client_input')) != 0:
+    file_list = glob('Final_Web/static/input_images/car_damage_type/client_input/*')
+    for file_path in file_list:
+        os.remove(file_path)
+    
+if len(os.listdir('Final_Web/static/input_images/car_part/part_img')) != 0:
+    file_list = glob('Final_Web/static/input_images/car_part/part_img/*')
+    for file_path in file_list:
+        os.remove(file_path)
+
 # 초기 화면 보여주기. 이미지 2개로 모델 방법 고르는 페이지.
-# accordian - index 계승 : 하단에 사이트 이용법 설명
-
-
 @app.route('/')
 def index():
     return render_template('index.html')
 
 
 # 로그인 되었을 때만 이용 가능한 기능 회원 아닐경우 경고문구 표시
-# 게시판 : 조회 이력 보여주기
+# 게시판 : 조회 이력 보여주기(미완)
 @app.route('/board')
 def board():
     return render_template('board.html')
 
-# 이미지 혹은 버튼(추가에정?) 클릭시 이동.
+# 버튼 클릭시 이동.
 # 부위사진 1장과 상처별로 사진 1장씩 입력받아서 cnn돌리기 위함.
-
-
 @app.route('/cnn')
 def cnn():
     colors = ['그레이', '레드', '블랙', '블루', '실버', '오렌지', '화이트']
+
     return render_template('upload_files.html', colors=colors)
 
 
 @app.route('/yolo')
 def yolo():
-    
     return render_template('yolo.html')
 
 
@@ -62,88 +78,43 @@ def upload():
             uploaded_file.save(file_path)
 
     if 'part_img_file' in request.files:
+        part_img_filename = None
         uploaded_part_file = request.files['part_img_file']
         filename = secure_filename(uploaded_part_file.filename)
         file_path = f'Final_Web/static/input_images/car_part/part_img/{filename}'
         uploaded_part_file.save(file_path)
+        part_img_filename = uploaded_part_file
 
-    # if uploaded_type_file:
-    #     # 파일 저장
-    #     filename = uploaded_type_file.filename
-    #     file_path = f'Final_Web/static/input_images/car_damage_type/client_input/{filename}'
-    #     uploaded_type_file.save(file_path)
-
-    # if uploaded_part_file:
-    #     # 파일 저장
-    #     filename = uploaded_part_file.filename
-    #     file_path = f'Final_Web/static/input_images/car_part/part_img/{filename}'
-    #     uploaded_part_file.save(file_path)
-
-        # 세션에 이미지 파일 경로 저장
-        # session['uploaded_image'] = file_path
-
-    return render_template('upload_files.html') #, damage_type_img=session['uploaded_image']
+    return render_template('upload_files.html', part_img_filename=part_img_filename)
 
 
 @app.route('/upload_yolo', methods=['POST'])
 def upload2():
-    uploaded_file = request.files['']
-
+    uploaded_file = request.files['yolo_img_file']
     if uploaded_file:
         # 파일 저장
-        filename = uploaded_file.filename
-        file_path = f'Final_Web/static/input_images/yolo_input/{filename}'
+        # filename = uploaded_file.filename
+        new_filename = "detect.jpg"
+        file_path = f'Final_Web/static/input_images/yolo_input/{new_filename}'
         uploaded_file.save(file_path)
-#######################
-    best_weights_path = 'Final_Web/static/models/best.pt'  # 최적의 가중치 경로 설정
-    test_data_path = file_path  # 테스트 데이터 경로 설정
-    output_path = "Final_Web/static/output_images"
+    return render_template('yolo.html')
 
-    # !python3 Final_Web/static/models/detect.py \
-    #         --weights {best_weights_path} \
-    #         --source {test_data_path} \
-    #         --img 512 \
-    #         --conf 0.1 \
-    #         --save-dir {output_path}"
+@app.route('/yolo_output')
+def yolo_output():
 
+    model = YOLO('Final_Web/static/models/best.pt')
+    model.predict(source = "Final_Web/static/input_images/yolo_input", save=True,
+                  conf=0.02, iou=0.02)
+    
+    shutil.copy("runs/detect/predict/detect.jpg", "Final_Web/static/output_images/detect.jpg")
+    return render_template('yolo_output.html')
 
-    return render_template('upload_yolo.html')
+# CNN 결과창
 
-
-# 수정중 ㅁ?ㄹ                                  --논의 필요
-# @app.route('/upload_file')
-# def upload_file():
-#     f = request.files['myfile']
-#     f.save(f.filename)
-
-#     colors = ['그레이', '레드', '블랙', '블루', '실버', '오렌지', '화이트']
-#     return render_template('upload_files.html', colors=colors)
-
-
-# 결과창 공통점
-# 1. 이미지 상단에 선택한 차종등 정보 제목으로 출력
-# 2. 입력받은 정보들 저장된 모델 불러와 적용
-
-
-# 3-1. YOLO는 Predict된 유형들 Bbox 그려진 이미지 출력.
-# 상처 감지한 개수 만큼 반복문 => 상처당 수리 방법에 따른 금액 3가지 출력
-
-# 3-2. CNN은 사진 보여줄까?말까?                                                --논의 필요
+# CNN은 사진 보여줄까?말까?  --논의 필요
 # 상처 사진 입력받은 개수 만큼 반복문 => 상처당 수리 방법에 따른 금액 3가지 출력
-#
 @app.route('/out_put', methods=['GET', 'POST'])
 def out_put():
-    # 업로드된 파일들을 저장할 경로
-    # upload_folder = '/static/input_images'
-
-    # # 업로드된 파일들을 받아서 저장
-    # if not os.path.exists(upload_folder):
-    #     os.makedirs(upload_folder)
-
-    # for file in request.files.getlist('image'):
-    #     if file:
-    #         file.save(os.path.join(upload_folder, file.filename))
-
     # 부위모델 예측
     #part_img = 'static/input_images/car_part/*'
     part_output = part_model_predict()
@@ -153,9 +124,6 @@ def out_put():
     damage_type_output = damage_type_model_predict()
 
     # 입력받은 값들로 X요소 추출
-    # 차종 => car_size
-
-    # car_kind = selectbox.step3.values --??????
 
     # HQ 모델 예측
     hq_output = HQ_ML_model(part_output, damage_type_output)
@@ -180,7 +148,7 @@ def part_model_predict():
     #
     IMAGE_SIZE = 224
     print(os.getcwd())
-    if len(os.listdir('Final_Web/static/input_images/car_part')) == 0:
+    if len(os.listdir('Final_Web/static/input_images/car_part')) == 0: # 이미지 없으면 실행 안함.
         return 0
     else:
         pass
@@ -197,7 +165,6 @@ def part_model_predict():
     part_output_raw = model.predict(test_generator)
     max_index = np.argmax(part_output_raw)
     part_output = car_part_dict.get(max_index)
-    # part_output = {'chr_type': car_part_dict.get(max_index) , "int_type": max_index}
     return part_output
 
 
@@ -226,22 +193,41 @@ def damage_type_model_predict():
 
 
 def HQ_ML_model(part_output, damage_type_output):
-    model = joblib.load(
-        'Final_Web/static/models/HQ_exchange_r_forest.pkl')
+    
     # 내용 대입전 df 초기화
+    global df
     df = pd.DataFrame(columns=['Bonnet', 'Bumper', 'Door', 'Fender',
                                'Head lights', 'Rear lamp', 'Rocker panel', 'Roof',
                                'Side mirror', 'Trunk lid', 'Wheel',
                                'Breakage', 'Crushed', 'Scratched', 'Separated',
                                'City car', 'Compact car', 'Full-size car', 'Mid-size car', 'SUV', 'VAN'])
-    df.loc[len(df)] = 0  # 모든행이 0인행 1개 추가
-    df[part_output] = 1  # 파손 부위 열 1로 업데이트
-    df[damage_type_output] = 1  # 파손 유형 열 1로 업데이트
+    img_len = len(os.listdir('Final_Web\static\input_images\car_damage_type\client_input'))
+    for i in range(img_len):
+        df.loc[i, 0:len(df.columns)] = 0  # 모든열이 0인행 i 추가
+        df.loc[i, part_output] = 1 # 파손 부위 열 1로 업데이트
+        df.loc[i, damage_type_output] = 1  # 파손 유형 열 1로 업데이트
+    
 
     # 로딩된 모델 사용 예시
+    # 1. HQ_exchange
+    exchange_model = joblib.load('Final_Web/static/models/HQ_exchange_r_forest.pkl')
+    exchange_output = exchange_model.predict(df.iloc[:, :21])
 
-    hq_output = model.predict(df)
-    return hq_output
+    # 2. HQ_coating
+    # exchange_model = joblib.load('Final_Web/static/models/HQ_exchange_r_forest.pkl')
+    # exchange_output = exchange_model.predict(df.iloc[:, :21])
+
+    # 3. HQ_fangum
+    # exchange_model = joblib.load('Final_Web/static/models/HQ_exchange_r_forest.pkl')
+    # exchange_output = exchange_model.predict(df.iloc[:, :21])
+
+
+    for i in range(img_len):
+        df.loc[i, 'HQ_exchange'] = exchange_output[i]
+        # df.loc[i, 'HQ_coating'] = coating_output[i]
+        # df.loc[i, 'HQ_fangum'] = fangum_output[i]
+
+    return 0
 
 # 로그인 회원만 사용 할 수 있는 기능. 회원 아니면 회원 전용 기능 disable
 # 이전 조회 기록 조회.
