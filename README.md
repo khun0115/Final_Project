@@ -43,6 +43,7 @@
 
 ## 2. 일정 및 계획
 ![image](https://github.com/khun0115/Final_Project/assets/127808901/acf709db-86a3-4f07-87aa-2c1651d93f35)
+![계획](https://github.com/khun0115/Final_Project/assets/106053306/f976b167-14a2-44db-a0a8-7bde0e55edcd)
 
 
 ## 3. 데이터 출처
@@ -57,9 +58,20 @@
 
 
 ### 2) 통계검증
-    ① 통계검증
+    - 통계검증
       ANOVA, t검정을 이용하여 변수가 가격에 유의미한 영향을 미치는지 판단하기 위한 검정으로
       모든 변수에 영향을 끼치는걸로 판단.
 ![image](https://github.com/khun0115/Final_Project/assets/127808901/9443ce5a-bb6a-4e02-b12f-2a04cba02c3c)
+![통검](https://github.com/khun0115/Final_Project/assets/106053306/4bfdaf9e-833b-416a-8c64-a7fc32162029)
+
+
+## 5. 모델 학습
+
+
+### 1) YOLO
+    - 파손 데미지 판별 모델
+    데미지별 수리가격이 상이하기에 가격산출을 위해  데미지 손상도를 4가지로 분류
+![yolo](https://github.com/khun0115/Final_Project/assets/106053306/4b2348c4-22c4-497e-a9a1-902a4e8dadab)  
+
 
       
