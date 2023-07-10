@@ -30,20 +30,13 @@
         </div>
         <div>
           <span class="badge text-bg-dark" style="font-size: 25px;"> 미리 보기 </span>
-          <img src="{{url_for('static', filename='menu/')}} " class="img-thumbnail rounded mx-auto d-block custom-image"
+          <img src="{{ url_for('static', filename='menu/*') }}" class="img-thumbnail rounded mx-auto d-block custom-image"
             alt="업로드사진" style="height: 300px; width: 300px;">
 
         </div>
 
       </div>
       <br>
-      <!-- <div class="custom-center">
-        <form action="/upload_damage_type" method="POST" >
-          <input type="file" name="part_img_file" />
-          <button type="submit">업로드</button>
-        </form>
-
-      </div> -->
 
     </div>
     <div class="container custom-border">
@@ -52,19 +45,12 @@
         차량 상처 사진 업로드란
       </span>
 
-
-      <!-- <form action="/upload_damage_type" method="POST" enctype="multipart/form-data">
-        <br>
-        <div class="thumbnail-grid custom-center" id="thumbnails" style="margin-bottom: 20px;"></div>
-        <div class="custom-center">
-          <input type="file" name="damage_type_image" id="imageUpload" multiple>
-          <button type="submit">업로드</button>
-        </div>
-      </form> -->
+      <div class="thumbnail-grid custom-center" id="thumbnails" style="margin-bottom: 20px;"></div>
       <div class="custom-center">
         <form action="/upload_damage_type" method="POST" enctype="multipart/form-data">
           <span class="badge text-bg-primary" style="font-size: 17px;">부위사진</span>
-          <input type="file" name="part_img_file" />
+          <input type="file" name="part_img_file" id="partImageInput" onchange="previewPartImage(event)"
+            accept="image/*" />
 
           <span class="badge text-bg-primary" style="font-size: 17px;">상처사진</span>
           <input type="file" name="damage_type_image" id="imageUpload" multiple>
@@ -73,13 +59,14 @@
         </form>
       </div>
 
-      <div class="thumbnail-grid custom-center" id="thumbnails" style="margin-bottom: 20px;"></div>
+
 
       <script>
         const imageUpload = document.getElementById('imageUpload');
         const thumbnailsContainer = document.getElementById('thumbnails');
 
         imageUpload.addEventListener('change', handleImageUpload);
+        handleImageUpload();
 
         function handleImageUpload(event) {
           const files = Array.from(imageUpload.files);
@@ -113,6 +100,24 @@
             const placeholder = document.createElement('div');
             placeholder.classList.add('thumbnail', 'placeholder');
             thumbnailsContainer.appendChild(placeholder);
+          }
+        }
+
+        function previewPartImage(event) {
+          const fileInput = event.target;
+          const file = fileInput.files[0];
+          const imgPreview = document.getElementById("partImagePreview");
+
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              imgPreview.src = e.target.result;
+              imgPreview.style.display = "block";
+            }
+            reader.readAsDataURL(file);
+          } else {
+            imgPreview.src = "";
+            imgPreview.style.display = "none";
           }
         }
       </script>

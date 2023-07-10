@@ -126,10 +126,10 @@ def out_put():
     # 입력받은 값들로 X요소 추출
 
     # HQ 모델 예측
-    hq_output = HQ_ML_model(part_output, damage_type_output)
+    HQ_exchange_list = HQ_ML_model(part_output, damage_type_output)
 
     # , hq_output
-    return render_template('out_put.html', part_output=part_output, damage_type_output=damage_type_output, hq_output=hq_output)
+    return render_template('out_put.html', part_output=part_output, damage_type_output=damage_type_output, HQ_exchange_list=HQ_exchange_list)
 
 
 def part_model_predict():
@@ -226,8 +226,11 @@ def HQ_ML_model(part_output, damage_type_output):
         df.loc[i, 'HQ_exchange'] = exchange_output[i]
         # df.loc[i, 'HQ_coating'] = coating_output[i]
         # df.loc[i, 'HQ_fangum'] = fangum_output[i]
+    HQ_exchange_list = list(df.loc[:, 'HQ_exchange'])
+    # HQ_coating_list = list(df.loc[:, 'HQ_coating'])
+    # HQ_fangum_list = list(df.loc[:, 'HQ_fangum'])
 
-    return 0
+    return HQ_exchange_list
 
 # 로그인 회원만 사용 할 수 있는 기능. 회원 아니면 회원 전용 기능 disable
 # 이전 조회 기록 조회.
