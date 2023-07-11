@@ -9,41 +9,40 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from werkzeug.utils import secure_filename
 from glob import glob
 from ultralytics import YOLO
-import time
+import mysql.connector
 
 app = Flask(__name__)
 app.secret_key = 'aaa'
 
-
-UPLOAD_FOLDER = '/path/to/save/folder'  # 저장할 폴더 경로
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 # 이전 사용 이미지 있으면 삭제
-if os.path.exists("C:/GitTest/Final_Project/runs"):
-    shutil.rmtree("C:/GitTest/Final_Project/runs")
-if len(os.listdir('Final_Web/static/input_images/yolo_input')) != 0:
-    file_list = glob('Final_Web/static/input_images/yolo_input/*')
-    for file_path in file_list:
-        os.remove(file_path)
+def clear():
+    if os.path.exists("C:/GitTest/Final_Project/runs"):
+        shutil.rmtree("C:/GitTest/Final_Project/runs")
+    if len(os.listdir('Final_Web/static/input_images/yolo_input')) != 0:
+        file_list = glob('Final_Web/static/input_images/yolo_input/*')
+        for file_path in file_list:
+            os.remove(file_path)
 
-if len(os.listdir('Final_Web/static/output_images')) != 0:
-    file_list = glob('Final_Web/static/output_images/*')
-    for file_path in file_list:
-        os.remove(file_path)
+    if len(os.listdir('Final_Web/static/output_images')) != 0:
+        file_list = glob('Final_Web/static/output_images/*')
+        for file_path in file_list:
+            os.remove(file_path)
 
-if len(os.listdir('Final_Web/static/input_images/car_damage_type/client_input')) != 0:
-    file_list = glob('Final_Web/static/input_images/car_damage_type/client_input/*')
-    for file_path in file_list:
-        os.remove(file_path)
-    
-if len(os.listdir('Final_Web/static/input_images/car_part/part_img')) != 0:
-    file_list = glob('Final_Web/static/input_images/car_part/part_img/*')
-    for file_path in file_list:
-        os.remove(file_path)
+    if len(os.listdir('Final_Web/static/input_images/car_damage_type/client_input')) != 0:
+        file_list = glob(
+            'Final_Web/static/input_images/car_damage_type/client_input/*')
+        for file_path in file_list:
+            os.remove(file_path)
 
-# 초기 화면 보여주기. 이미지 2개로 모델 방법 고르는 페이지.
+    if len(os.listdir('Final_Web/static/input_images/car_part/part_img')) != 0:
+        file_list = glob('Final_Web/static/input_images/car_part/part_img/*')
+        for file_path in file_list:
+            os.remove(file_path)
+
+# 초기 화면. 이미지 2개로 모델 방법 고르는 페이지.
 @app.route('/')
 def index():
+    clear() # 이전 사용 이미지 있으면 삭제
     return render_template('index.html')
 
 
@@ -54,7 +53,6 @@ def board():
     return render_template('board.html')
 
 # 버튼 클릭시 이동.
-# 부위사진 1장과 상처별로 사진 1장씩 입력받아서 cnn돌리기 위함.
 @app.route('/cnn')
 def cnn():
     colors = ['그레이', '레드', '블랙', '블루', '실버', '오렌지', '화이트']
@@ -80,8 +78,9 @@ def upload():
     if 'part_img_file' in request.files:
         part_img_filename = None
         uploaded_part_file = request.files['part_img_file']
-        filename = secure_filename(uploaded_part_file.filename)
-        file_path = f'Final_Web/static/input_images/car_part/part_img/{filename}'
+        #filename = secure_filename(uploaded_part_file.filename) ##############################
+        new_filename = "part.jpg"
+        file_path = f'Final_Web/static/input_images/car_part/part_img/{new_filename}'
         uploaded_part_file.save(file_path)
         part_img_filename = uploaded_part_file
 
@@ -99,37 +98,79 @@ def upload2():
         uploaded_file.save(file_path)
     return render_template('yolo.html')
 
+# YOLO 결과창
+# YOLO Bbox그리고 이미지 출력 위해서 복사
 @app.route('/yolo_output')
 def yolo_output():
 
     model = YOLO('Final_Web/static/models/best.pt')
-    model.predict(source = "Final_Web/static/input_images/yolo_input", save=True,
-                  conf=0.02, iou=0.02)
-    
-    shutil.copy("runs/detect/predict/detect.jpg", "Final_Web/static/output_images/detect.jpg")
+    model.predict(source="Final_Web/static/input_images/yolo_input", save=True,
+                  conf=0.1, iou=0.02)
+
+    shutil.copy("runs/detect/predict/detect.jpg",
+                "Final_Web/static/output_images/detect.jpg")
     return render_template('yolo_output.html')
 
-# CNN 결과창
 
-# CNN은 사진 보여줄까?말까?  --논의 필요
-# 상처 사진 입력받은 개수 만큼 반복문 => 상처당 수리 방법에 따른 금액 3가지 출력
+# CNN 결과창 ------------------------------------------------------------------------------------------------------------------------
 @app.route('/out_put', methods=['GET', 'POST'])
 def out_put():
-    # 부위모델 예측
-    #part_img = 'static/input_images/car_part/*'
+    selectedCar = request.form.get('selectedCar')
+    selectedYear = request.form.get('selectedYear')
+    selectedColor = request.form.get('selectedColor')
+
+    # 파손 부위 모델 예측 함수 호출
     part_output = part_model_predict()
+    # 파손 유형 모델 예측 함수 호출
+    damage_type_output_arr = damage_type_model_predict()
+    # 차량 사이즈 출력 함수 호출
 
-    # 파손 유형 모델 예측
-    #type_img_list = 'static/input_images/car_damage_type/*'
-    damage_type_output = damage_type_model_predict()
+    car_size = car_size_sql(selectedCar)
 
-    # 입력받은 값들로 X요소 추출
+    # HQ 모델 예측 함수 호출
+    # 셀렉트 값 전달 필요 -- 차종만 HQ 모델에 차량 사이즈로 들어간다
+    HQ_list = HQ_ML_model(part_output, damage_type_output_arr, car_size)
+    # 리스트 3개 받아서 튜플로 저장
+    ## HQ_list[0] = HQ_exchange_list
+    ## HQ_list[1] = HQ_coating_list
+    ## HQ_list[2] = HQ_sheet_metal_list
 
-    # HQ 모델 예측
-    HQ_exchange_list = HQ_ML_model(part_output, damage_type_output)
+    # DB에 접속 연산 함수 호출
+    exchange_cost_list, sheet_metal_list = DB_HQ_cal(HQ_list, selectedCar, selectedYear, selectedColor, part_output, car_size)
 
-    # , hq_output
-    return render_template('out_put.html', part_output=part_output, damage_type_output=damage_type_output, HQ_exchange_list=HQ_exchange_list)
+    return render_template('out_put.html', 
+                           part_output=part_output, 
+                           damage_type_output_arr=damage_type_output_arr, 
+                           exchange_cost_list=exchange_cost_list, 
+                           sheet_metal_list=sheet_metal_list)
+
+def car_size_sql(car_name):
+    # 데이터베이스 연결 설정
+    db = mysql.connector.connect(
+        host='localhost',
+        user='root',
+        password='1111',
+        database='final_project'
+    )
+    #'City car', 'Compact car', 'Full-size car', 'Mid-size car', 'SUV', :'VAN'
+    car_size_dict = {'소형': 'City car',
+                    '경형': 'Compact car',
+                    '대형': 'Full-size car',
+                    '중형': 'Mid-size car',
+                    'SUV': 'SUV',
+                    'VAN': 'VAN'}
+    
+    cursor = db.cursor()
+    query = f"SELECT DISTINCT 차량크기 FROM car_part_price WHERE 차이름 = '{car_name}'"  # 차량 이름으로 차량 크기 뽑기
+    cursor.execute(query)
+    result = cursor.fetchall()
+    cursor.close()
+
+    if result:  # 결과가 있는지 확인
+        car_size = car_size_dict.get(result[0][0])  # 첫 번째 요소 참조
+        return car_size
+    else:
+        return None  # 결과가 없을 경우 None 반환
 
 
 def part_model_predict():
@@ -145,13 +186,10 @@ def part_model_predict():
                      8: 'Side mirror',
                      9: 'Trunk lid',
                      10: 'Wheel'}
-    #
     IMAGE_SIZE = 224
-    print(os.getcwd())
-    if len(os.listdir('Final_Web/static/input_images/car_part')) == 0: # 이미지 없으면 실행 안함.
+    # 이미지 없으면 실행 안함.
+    if len(os.listdir('Final_Web/static/input_images/car_part')) == 0:
         return 0
-    else:
-        pass
 
     test_data_gen = ImageDataGenerator(rescale=1./255)
     test_generator = test_data_gen.flow_from_directory(directory=f'Final_Web/static/input_images/car_part',
@@ -167,9 +205,8 @@ def part_model_predict():
     part_output = car_part_dict.get(max_index)
     return part_output
 
-
+# 파손 유형 CNN 함수
 def damage_type_model_predict():
-    # 이미지들로 model.evaluate()
     damage_type_dict = {0: 'Breakage',
                         1: 'Crushed',
                         2: 'Scratched',
@@ -185,52 +222,100 @@ def damage_type_model_predict():
 
     model = tf.keras.models.load_model(
         'Final_Web/static/models/car_damage_type.h5')
-    # 로딩된 모델 사용 예시
+    # 로딩된 모델 사용 예시 -------------------------------------------------------------------------------------------------------------------------------------------- 예상 문제 구간
     damage_type_output_raw = model.predict(test_generator)  # 상처
     max_index = np.argmax(damage_type_output_raw)
     damage_type_output = damage_type_dict.get(max_index)
     return damage_type_output
 
+# HQ 머신러닝 함수
+def HQ_ML_model(part_output, damage_type_output_arr, car_size):
 
-def HQ_ML_model(part_output, damage_type_output):
-    
     # 내용 대입전 df 초기화
-    global df
+    #global df
     df = pd.DataFrame(columns=['Bonnet', 'Bumper', 'Door', 'Fender',
                                'Head lights', 'Rear lamp', 'Rocker panel', 'Roof',
                                'Side mirror', 'Trunk lid', 'Wheel',
                                'Breakage', 'Crushed', 'Scratched', 'Separated',
-                               'City car', 'Compact car', 'Full-size car', 'Mid-size car', 'SUV', 'VAN'])
+                               'City car', 'Compact car', 'Full-size car', 'Mid-size car', 'SUV', 'VAN']) # 21개. 부위가 Wheel 일경우 도장 생략해야한다.
+    # 반복문 위해 damage_type 이미지 개수 카운팅
     img_len = len(os.listdir('Final_Web\static\input_images\car_damage_type\client_input'))
     for i in range(img_len):
         df.loc[i, 0:len(df.columns)] = 0  # 모든열이 0인행 i 추가
-        df.loc[i, part_output] = 1 # 파손 부위 열 1로 업데이트
-        df.loc[i, damage_type_output] = 1  # 파손 유형 열 1로 업데이트
-    
+        df.loc[i, part_output] = 1  # 파손 부위 열 1로 업데이트
+        df.loc[i, damage_type_output_arr] = 1  # 파손 유형 열 1로 업데이트
+        df.loc[i, car_size] = 1  # 자동차 사이즈 열 1로 업데이트
 
     # 로딩된 모델 사용 예시
     # 1. HQ_exchange
-    exchange_model = joblib.load('Final_Web/static/models/HQ_exchange_r_forest.pkl')
-    exchange_output = exchange_model.predict(df.iloc[:, :21])
+    exchange_model = joblib.load(
+        'Final_Web/static/models/HQ_exchange_r_forest.pkl')
+    exchange_output = exchange_model.predict(df.iloc[:, :21]) # 부위 유형 차종 으로 머신 러닝.
 
-    # 2. HQ_coating
-    # exchange_model = joblib.load('Final_Web/static/models/HQ_exchange_r_forest.pkl')
-    # exchange_output = exchange_model.predict(df.iloc[:, :21])
+    # 2. HQ_sheet_metal
+    sheet_metal_model = joblib.load('Final_Web/static/models/HQ_sheet_metal_r_forest.pkl')
+    sheet_metal_output = sheet_metal_model.predict(df.iloc[:, :21])
 
-    # 3. HQ_fangum
-    # exchange_model = joblib.load('Final_Web/static/models/HQ_exchange_r_forest.pkl')
-    # exchange_output = exchange_model.predict(df.iloc[:, :21])
-
+    # 3. HQ_coating
+    if part_output == "Wheel":
+        pass
+    else:
+        del df['Wheel']
+        coating_model = joblib.load('Final_Web/static/models/HQ_coating_r_forest.pkl')
+        coating_output = coating_model.predict(df.iloc[:, :20])
 
     for i in range(img_len):
-        df.loc[i, 'HQ_exchange'] = exchange_output[i]
-        # df.loc[i, 'HQ_coating'] = coating_output[i]
-        # df.loc[i, 'HQ_fangum'] = fangum_output[i]
-    HQ_exchange_list = list(df.loc[:, 'HQ_exchange'])
-    # HQ_coating_list = list(df.loc[:, 'HQ_coating'])
-    # HQ_fangum_list = list(df.loc[:, 'HQ_fangum'])
+        df.loc[i, 'HQ_exchange'] = exchange_output[i] # 교환 HQ 추가
+        df.loc[i, 'HQ_coating'] = coating_output[i] # 도장 HQ 추가
+        df.loc[i, 'HQ_sheet_metal'] = sheet_metal_output[i] # 판금 HQ 추가
 
-    return HQ_exchange_list
+    HQ_exchange_list = list(df.loc[:, 'HQ_exchange']) # 교환 HQ 전달위해 저장
+    HQ_coating_list = list(df.loc[:, 'HQ_coating']) # 도장 HQ 전달위해 저장
+    HQ_sheet_metal_list = list(df.loc[:, 'HQ_sheet_metal']) # 판금 HQ 전달위해 저장
+
+    return HQ_exchange_list, HQ_coating_list, HQ_sheet_metal_list
+
+def DB_HQ_cal(HQ_list, selectedCar, selectedYear, selectedColor, part_output, car_size):
+    money = 35000
+    ## HQ_list[0] = HQ_exchange_list
+    ## HQ_list[1] = HQ_coating_list
+    ## HQ_list[2] = HQ_sheet_metal_list
+    db = mysql.connector.connect(
+        host='localhost',
+        user='root',
+        password='1111',
+        database='final_project'
+    )
+    cursor = db.cursor()
+    query = f"SELECT DISTINCT {part_output} FROM car_part_price WHERE \
+            차이름 = '{selectedCar}' AND \
+            연식 = '{selectedYear}'"  # 차량 이름으로 차량 크기 뽑기
+    cursor.execute(query)
+    result = cursor.fetchall()
+    part_cost = result[0][0]
+
+    query = f"SELECT DISTINCT {part_output} FROM car_coating_price WHERE \
+            차량크기 = '{car_size}'"  # 차량 이름으로 차량 크기 뽑기
+    cursor.execute(query)
+    result = cursor.fetchall()
+    coating_cost = result[0][0]
+
+    query = f"SELECT price FROM car_color_price WHERE color='{selectedColor}'"
+    cursor.execute(query)
+    result = cursor.fetchall()
+    color_cost = result[0][0]
+
+
+    exchange_cost_list = []
+    sheet_metal_list = []
+    for i in range(len(HQ_list[0])): # 교환 HQ_list[0][0]; 도장 HQ_list[0][1];
+        exchange_cost_list.append(part_cost + money*(HQ_list[i][0]) + money*(HQ_list[i][1]) + coating_cost*(HQ_list[i][1])*color_cost)
+        sheet_metal_list.append(money*(HQ_list[i][0]) + money*(HQ_list[i][2]) + money*(HQ_list[i][1]) + coating_cost*(HQ_list[i][1])*color_cost)
+
+    cursor.close()
+    return exchange_cost_list, sheet_metal_list
+
+
 
 # 로그인 회원만 사용 할 수 있는 기능. 회원 아니면 회원 전용 기능 disable
 # 이전 조회 기록 조회.
