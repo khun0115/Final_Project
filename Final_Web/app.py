@@ -67,6 +67,7 @@ def yolo():
 
 @app.route('/upload_damage_type', methods=['POST'])
 def upload():
+    colors = ['그레이', '레드', '블랙', '블루', '실버', '오렌지', '화이트']
     if 'damage_type_image' in request.files:
         uploaded_type_files = request.files.getlist('damage_type_image')
         for uploaded_file in uploaded_type_files:
@@ -84,7 +85,7 @@ def upload():
         uploaded_part_file.save(file_path)
         part_img_filename = uploaded_part_file
 
-    return render_template('upload_files.html', part_img_filename=part_img_filename)
+    return render_template('upload_files.html', part_img_filename=part_img_filename, colors=colors)
 
 
 @app.route('/upload_yolo', methods=['POST'])
@@ -277,9 +278,9 @@ def HQ_ML_model(part_output, damage_type_output_arr, car_size):
 
 def DB_HQ_cal(HQ_list, selectedCar, selectedYear, selectedColor, part_output, car_size):
     money = 35000
-    ## HQ_list[0] = HQ_exchange_list
-    ## HQ_list[1] = HQ_coating_list
-    ## HQ_list[2] = HQ_sheet_metal_list
+    ## HQ_list[0][0] = HQ_exchange_list
+    ## HQ_list[][1] = HQ_coating_list
+    ## HQ_list[][2] = HQ_sheet_metal_list
     db = mysql.connector.connect(
         host='localhost',
         user='root',
@@ -287,33 +288,44 @@ def DB_HQ_cal(HQ_list, selectedCar, selectedYear, selectedColor, part_output, ca
         database='final_project'
     )
     cursor = db.cursor()
+    # selectedCar = "'" + selectedCar + "'"
+    # selectedYear = "'" + selectedYear + "'"
     query = f"SELECT DISTINCT {part_output} FROM car_part_price WHERE \
             차이름 = '{selectedCar}' AND \
             연식 = '{selectedYear}'"  # 차량 이름으로 차량 크기 뽑기
     cursor.execute(query)
     result = cursor.fetchall()
-    part_cost = result[0][0]
+    part_cost = result
 
     query = f"SELECT DISTINCT {part_output} FROM car_coating_price WHERE \
             차량크기 = '{car_size}'"  # 차량 이름으로 차량 크기 뽑기
     cursor.execute(query)
     result = cursor.fetchall()
-    coating_cost = result[0][0]
+    coating_cost = result
 
     query = f"SELECT price FROM car_color_price WHERE color='{selectedColor}'"
     cursor.execute(query)
     result = cursor.fetchall()
-    color_cost = result[0][0]
+    color_cost = result
 
+    cursor.close()
 
     exchange_cost_list = []
     sheet_metal_list = []
-    for i in range(len(HQ_list[0])): # 교환 HQ_list[0][0]; 도장 HQ_list[0][1];
-        exchange_cost_list.append(part_cost + money*(HQ_list[i][0]) + money*(HQ_list[i][1]) + coating_cost*(HQ_list[i][1])*color_cost)
-        sheet_metal_list.append(money*(HQ_list[i][0]) + money*(HQ_list[i][2]) + money*(HQ_list[i][1]) + coating_cost*(HQ_list[i][1])*color_cost)
+    
 
-    cursor.close()
-    return exchange_cost_list, sheet_metal_list
+    for i in range(len(HQ_list[0])):
+        part_cost_float = float(part_cost[i])
+        coating_cost_float = float(coating_cost[i])
+        color_cost_float = float(color_cost[i])
+
+        exchange_cost = part_cost_float + money*(HQ_list[i][0]) + money*(HQ_list[i][1]) + coating_cost_float*(HQ_list[i][1])*color_cost_float
+        sheet_metal = money*(HQ_list[i][0]) + money*(HQ_list[i][2]) + money*(HQ_list[i][1]) + coating_cost_float*(HQ_list[i][1])*color_cost_float
+
+        exchange_cost_list.append(exchange_cost)
+        sheet_metal_list.append(sheet_metal)
+
+    return exchange_cost_list, sheet_metal_list 
 
 
 

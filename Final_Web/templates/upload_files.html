@@ -138,17 +138,36 @@
         var selectedColor = document.getElementById("step4").value;
 
         if (selectedCar && selectedYear && selectedColor) {
-          var url = "/out_put?";
-          url += "selectedCar=" + encodeURIComponent(selectedCar);
-          url += "&selectedYear=" + encodeURIComponent(selectedYear);
-          url += "&selectedColor=" + encodeURIComponent(selectedColor);
+          var form = document.createElement("form");
+          form.method = "post";
+          form.action = "/upfile";
 
-          // 선택된 값들을 URL에 추가
-          location.href = url;
-          return false; // 링크 클릭 동작 중단
+          var selectedCarField = document.createElement("input");
+          selectedCarField.type = "hidden";
+          selectedCarField.name = "selectedCar";
+          selectedCarField.value = selectedCar;
+          form.appendChild(selectedCarField);
+
+          var selectedYearField = document.createElement("input");
+          selectedYearField.type = "hidden";
+          selectedYearField.name = "selectedYear";
+          selectedYearField.value = selectedYear;
+          form.appendChild(selectedYearField);
+
+          var selectedColorField = document.createElement("input");
+          selectedColorField.type = "hidden";
+          selectedColorField.name = "selectedColor";
+          selectedColorField.value = selectedColor;
+          form.appendChild(selectedColorField);
+
+          document.body.appendChild(form);
+
+          form.submit();
+          return false; // 이벤트 중단
         }
       }
     </script>
+
 
 
 </body>

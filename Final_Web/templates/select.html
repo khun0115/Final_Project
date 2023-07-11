@@ -36,7 +36,7 @@
     style="font-size: 20px; padding: 8px 12px; display: inline-flex; align-items: center; justify-content: center;">
     차종
   </span>
-  <select id="step2" onchange="updateStep3()" disabled>
+  <select id="step2" name="selectedCar" onchange="updateStep3()" disabled>
     <option value="">제조사별 차종</option>
   </select>
 
@@ -44,7 +44,7 @@
     style="font-size: 20px; padding: 8px 12px; display: inline-flex; align-items: center; justify-content: center;">
     연식
   </span>
-  <select id="step3" onchange="updateStep4()" disabled>
+  <select id="step3" name="selectedYear" onchange="updateStep4()" disabled>
     <option value="">연식</option>
   </select>
 
@@ -52,7 +52,7 @@
     style="font-size: 20px; padding: 8px 12px; display: inline-flex; align-items: center; justify-content: center;">
     색상
   </span>
-  <select id="step4">
+  <select id="step4" name="selectedColor" onchange="addSelectedToUrl()">
     <option value="">선택하세요</option>
     {% for color in colors%}
     <option value="{{ color }}">{{ color }}</option>
@@ -124,7 +124,7 @@
         step3Select.disabled = false;
 
         for (var i = 8; i < 24; i++) {
-          var value = i < 10 ? `0${i}` : i;
+          var value = i //< 10 ? `0${i}` : i;
           step3Select.innerHTML += `<option value="suboption1_sub1">${value}</option>`;
         }
       }
