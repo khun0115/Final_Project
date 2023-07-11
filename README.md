@@ -9,7 +9,7 @@
 
 [김이경](https://github.com/khun0115/Final_Project/tree/master/%EA%B9%80%EC%9D%B4%EA%B2%BD) : 데이터 수집, 전처리, 데이터 분석, 모델학습
 
-[엄진성](https://github.com/khun0115/Final_Project/tree/master/%EC%97%84%EC%A7%84%EC%84%B1) : 데이터 수집, 전처리, 데이터 분석, DL 모델학습, YOLO 모델학습
+[엄진성](https://github.com/khun0115/Final_Project/tree/master/%EC%97%84%EC%A7%84%EC%84%B1) : 데이터 수집, 전처리, 데이터 분석, YOLO/ML 모델학습, 웹페이지 제작
 
 [오원석](https://github.com/khun0115/Final_Project/tree/master/%EC%98%A4%EC%9B%90%EC%84%9D) : 데이터 수집, 전처리, 데이터 분석, DL 모델학습, 발표
 
