@@ -80,7 +80,8 @@
     파손유형별 수리가격이 상이하기에 가격산출을 위해  데미지 손상도를 4가지로 분류
     파손부위별 부품의 가격이 상이하기에 차량의 부위를 11가지로 분류
 
-    ![image](https://github.com/khun0115/Final_Project/assets/128365269/f3bdcf4b-2c7c-46f7-be99-aab911c65c3b)
+![화면 캡처 2023-07-12 142740](https://github.com/khun0115/Final_Project/assets/128365269/9f556ca1-9934-4aaf-a1fe-5095a33435a7)
+
 
     
 
