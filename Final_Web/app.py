@@ -105,8 +105,7 @@ def upload2():
 def yolo_output():
 
     model = YOLO('Final_Web/static/models/best.pt')
-    model.predict(source="Final_Web/static/input_images/yolo_input", save=True,
-                  conf=0.1, iou=0.02)
+    model.predict(source="Final_Web/static/input_images/yolo_input", save=True)
 
     shutil.copy("runs/detect/predict/detect.jpg",
                 "Final_Web/static/output_images/detect.jpg")
@@ -295,18 +294,18 @@ def DB_HQ_cal(HQ_list, selectedCar, selectedYear, selectedColor, part_output, ca
             연식 = '{selectedYear}'"  # 차량 이름으로 차량 크기 뽑기
     cursor.execute(query)
     result = cursor.fetchall()
-    part_cost = result
+    part_cost = result[0][0]
 
     query = f"SELECT DISTINCT {part_output} FROM car_coating_price WHERE \
             차량크기 = '{car_size}'"  # 차량 이름으로 차량 크기 뽑기
     cursor.execute(query)
     result = cursor.fetchall()
-    coating_cost = result
+    coating_cost = result[0][0]
 
     query = f"SELECT price FROM car_color_price WHERE color='{selectedColor}'"
     cursor.execute(query)
     result = cursor.fetchall()
-    color_cost = result
+    color_cost = result[0][0]
 
     cursor.close()
 
@@ -315,18 +314,26 @@ def DB_HQ_cal(HQ_list, selectedCar, selectedYear, selectedColor, part_output, ca
     
 
     for i in range(len(HQ_list[0])):
-        part_cost_float = float(part_cost[i])
-        coating_cost_float = float(coating_cost[i])
-        color_cost_float = float(color_cost[i])
+        # part_cost_float = float(part_cost[i])
+        # coating_cost_float = float(coating_cost[i])
+        # color_cost_float = float(color_cost[i])
 
-        exchange_cost = part_cost_float + money*(HQ_list[i][0]) + money*(HQ_list[i][1]) + coating_cost_float*(HQ_list[i][1])*color_cost_float
-        sheet_metal = money*(HQ_list[i][0]) + money*(HQ_list[i][2]) + money*(HQ_list[i][1]) + coating_cost_float*(HQ_list[i][1])*color_cost_float
+        exchange_cost = part_cost + money*(HQ_list[0][i]) + money*(HQ_list[1][i]) + coating_cost*(HQ_list[2][i])*color_cost
+        sheet_metal = money*(HQ_list[0][i]) + money*(HQ_list[2][i]) + money*(HQ_list[1][i]) + coating_cost*(HQ_list[1][i])*color_cost
 
         exchange_cost_list.append(exchange_cost)
         sheet_metal_list.append(sheet_metal)
 
     return exchange_cost_list, sheet_metal_list 
 
+
+# @app.route('/upfile', methods=['GET', 'POST'])
+# def selectedValues():
+#     selectedCar = request.form.get('selectedCar')
+#     selectedYear = request.form.get('selectedYear')
+#     selectedColor = request.form.get('selectedColor')
+
+#     return selectedCar, selectedYear, selectedColor
 
 
 # 로그인 회원만 사용 할 수 있는 기능. 회원 아니면 회원 전용 기능 disable

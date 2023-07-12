@@ -68,32 +68,32 @@
       if (step1Value === "flexRadioDefault1") {
         step2Select.innerHTML = `
             <option value="suboption1">기아의 차종</option>
-            <option value="suboption2">모닝</option>
-            <option value="suboption3">K3</option>
-            <option value="suboption4">K5</option>
-            <option value="suboption5">K7</option>
-            <option value="suboption6">K9</option>
-            <option value="suboption7">카니발</option>
-            <option value="suboption8">쏘렌토</option>
-            <option value="suboption9">샐토스</option>
-            <option value="suboption10">레이</option>
+            <option value="모닝">모닝</option>
+            <option value="K3">K3</option>
+            <option value="K5">K5</option>
+            <option value="K7">K7</option>
+            <option value="K9">K9</option>
+            <option value="카니발">카니발</option>
+            <option value="쏘렌토">쏘렌토</option>
+            <option value="샐토스">샐토스</option>
+            <option value="레이">레이</option>
           `;
       } else if (step1Value === "flexRadioDefault2") {
         step2Select.innerHTML = `
             <option value="suboption11">삼성의 차종</option>
-            <option value="suboption12">QM3</option>
+            <option value="QM3">QM3</option>
           `;
       } else if (step1Value === "flexRadioDefault3") {
         step2Select.innerHTML = `
             <option value="suboption13">현대의 차종</option>
-            <option value="suboption14">투싼</option>
-            <option value="suboption15">제네시스G80</option>
-            <option value="suboption16">제네시스GV70</option>
-            <option value="suboption17">제네시스GV80</option>
-            <option value="suboption18">그랜저</option>
-            <option value="suboption19">아반떼</option>
-            <option value="suboption20">소나타</option>
-            <option value="suboption21">코나</option>
+            <option value="투싼">투싼</option>
+            <option value="제네시스G80">제네시스G80</option>
+            <option value="제네시스GV70">제네시스GV70</option>
+            <option value="제네시스GV80">제네시스GV80</option>
+            <option value="그랜저">그랜저</option>
+            <option value="아반떼">아반떼</option>
+            <option value="소나타">소나타</option>
+            <option value="코나">코나</option>
           `;
       }
 
@@ -125,7 +125,7 @@
 
         for (var i = 8; i < 24; i++) {
           var value = i //< 10 ? `0${i}` : i;
-          step3Select.innerHTML += `<option value="suboption1_sub1">${value}</option>`;
+          step3Select.innerHTML += `<option value="${i}">${value}</option>`;
         }
       }
     }

@@ -125,11 +125,12 @@
 
     </div>
     <div class="d-flex justify-content-center">
-      <a href="/out_put" onclick="addSelectedToUrl()" class="btn custom-button btn-lg custom-button:hover"
+      <a href="#" onclick="addSelectedToUrl()" class="btn custom-button btn-lg custom-button:hover"
         style="width: 50%;">
         가격 알아보러 가기
       </a>
     </div>
+    
 
     <script>
       function addSelectedToUrl() {
@@ -140,7 +141,7 @@
         if (selectedCar && selectedYear && selectedColor) {
           var form = document.createElement("form");
           form.method = "post";
-          form.action = "/upfile";
+          form.action = "/out_put";
 
           var selectedCarField = document.createElement("input");
           selectedCarField.type = "hidden";

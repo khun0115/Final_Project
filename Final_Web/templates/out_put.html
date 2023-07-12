@@ -26,16 +26,16 @@
 
   </div>
 
-  <h2>{{part_output['char_type'] }}</h2>
-  <h2></h2>
-  <h2>{{'파손 유형', damage_type_output}}</h2>
-  <!-- <h2>{{'교환 HQ', HQ_list[0]}}</h2>
-  <h2>{{'도장 HQ', HQ_list[1]}}</h2>
-  <h2>{{'판금 HQ', HQ_list[2]}}</h2> -->
-  {% for i in range(len(HQ_list[0])) %}
-  <h2>{{'교환-도장', exchange_cost_list[i]}}</h2>
-  <h2>{{'판금-도장', sheet_metal_list[i]}}</h2>
-  {% endfor %}
+  <div margin-left: 40px;>
+    <h2>{{part_output['char_type'] }}</h2>
+    <h2></h2>
+    <h2>{{'파손 유형', damage_type_output}}</h2>
+    {% for i in range(exchange_cost_list|length) %}
+    <h2><span class="badge text-bg-danger" >교환-도장</span>{{exchange_cost_list[i]}}</h2>
+    <h2><span class="badge text-bg-danger" >판금-도장</span>{{sheet_metal_list[i]}}</h2>
+    {% endfor %}
+  </div>
+
 </body>
 
 </html>
