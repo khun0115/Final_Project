@@ -1,20 +1,15 @@
 6/13 회의
 
-역할 
-원석 : validation 국산 외제 폴더 구분(이미지)
-현욱 : validation 국산 외제 폴더 구분(json), 기획안 작성
-도현, 진성 : validation 국산 외제차 id 구분, 욜로 서치(진성)
-은경, 이경 : validation damage csv 파일 생성
-영익 : 
+회의 안건 : CNN 모델구축을 위한 전처리 역할분담 
+	1.역할 
+		원석 : validation 국산 외제 폴더 구분(이미지)
+		현욱 : validation 국산 외제 폴더 구분(json), 기획안 작성
+		도현, 진성 : validation 국산 외제차 id 구분, 욜로 서치(진성)
+		영익, 은경, 이경 : validation damage csv 파일 생성
 
-image_id, category_id, segmentation(영역), area(파손영역), bbox, damage(손상종류), year(입고날짜 - x), color(색상) , repair(수리방법) , supercategory_name(차종, 차량크기)
-
-
-1차 모델
-damage별로 분류
-
-파손
-이격
-찌그러짐 
-스크래치
+	2. 차량 파손정보 CNN(분류)
+		- 파손
+		- 이격
+		- 찌그러짐 
+		- 스크래치
 
