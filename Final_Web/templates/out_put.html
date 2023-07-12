@@ -21,17 +21,21 @@
       {{part_output}}
     </span>
 
-    <img src="{{ url_for('static', filename='output_part/' + part_output + '.png') }}"
-      class="img-thumbnail rounded mx-auto d-block custom-image" alt="업로드사진" style="height: 500px; width: 600px;">
+    <img src="{{ url_for('static', filename='output_part/' + part_output + '.png')}}" class="img-thumbnail rounded mx-auto d-block custom-image" alt="업로드사진" style="height: 500px; width: 600px;">
+
 
   </div>
 
+
   <div class="custom-center">
+
+
+
     <h2>{{part_output['char_type'] }}</h2>
     <h2><span class="badge text-bg-danger" style="margin: 20px;">파손 유형</span>{{damage_type_output_arr}}</h2>
     {% for i in range(exchange_cost_list|length) %}
-    <h2><span class="badge text-bg-danger" style="margin: 20px;">교환-도장</span>{{exchange_cost_list[i]}}</h2>
-    <h2><span class="badge text-bg-danger" style="margin: 20px;">판금-도장</span>{{sheet_metal_list[i]}}</h2>
+    <h2><span class="badge text-bg-danger" style="margin: 20px;">교환-도장</span>{{exchange_cost_list[i]|int}}원</h2>
+    <h2><span class="badge text-bg-danger" style="margin: 20px;">판금-도장</span>{{sheet_metal_list[i]|int}}원</h2>
     {% endfor %}
   </div>
 

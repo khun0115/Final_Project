@@ -139,6 +139,13 @@ def out_put():
     # DB에 접속 연산 함수 호출
     exchange_cost_list, sheet_metal_list = DB_HQ_cal(HQ_list, selectedCar, selectedYear, selectedColor, part_output, car_size)
 
+    type_dict = {'Breakage' : '파손',
+                'Crushed' : '찌그러짐',
+                'Scratched' : '스크래치',
+                'Separated' : '이격'}
+
+    damage_type_output_arr = type_dict.get(damage_type_output_arr)
+
     return render_template('out_put.html', 
                            part_output=part_output, 
                            damage_type_output_arr=damage_type_output_arr, 
@@ -154,24 +161,26 @@ def car_size_sql(car_name):
         database='final_project'
     )
     #'City car', 'Compact car', 'Full-size car', 'Mid-size car', 'SUV', :'VAN'
-    car_size_dict = {'소형': 'City car',
-                    '경형': 'Compact car',
-                    '대형': 'Full-size car',
-                    '중형': 'Mid-size car',
-                    'SUV': 'SUV',
-                    'VAN': 'VAN'}
+    # car_size_dict = {'소형': 'City car',
+    #                 '경형': 'Compact car',
+    #                 '대형': 'Full-size car',
+    #                 '중형': 'Mid-size car',
+    #                 'SUV': 'SUV',
+    #                 'VAN': 'VAN'}
     
     cursor = db.cursor()
-    query = f"SELECT DISTINCT 차량크기 FROM car_part_price WHERE 차이름 = '{car_name}'"  # 차량 이름으로 차량 크기 뽑기
+    query = f"SELECT DISTINCT 차량크기 FROM car_data WHERE 차이름 = '{car_name}'"  # 차량 이름으로 차량 크기 뽑기
     cursor.execute(query)
     result = cursor.fetchall()
     cursor.close()
+    car_size = result[0][0]
+    return car_size
 
-    if result:  # 결과가 있는지 확인
-        car_size = car_size_dict.get(result[0][0])  # 첫 번째 요소 참조
-        return car_size
-    else:
-        return None  # 결과가 없을 경우 None 반환
+    # if result:  # 결과가 있는지 확인
+    #     car_size = car_size_dict.get(result[0][0])  # 첫 번째 요소 참조
+    #     return car_size
+    # else:
+    #     return None  # 결과가 없을 경우 None 반환
 
 
 def part_model_predict():
@@ -278,7 +287,7 @@ def HQ_ML_model(part_output, damage_type_output_arr, car_size):
     return HQ_exchange_list, HQ_coating_list, HQ_sheet_metal_list
 
 def DB_HQ_cal(HQ_list, selectedCar, selectedYear, selectedColor, part_output, car_size):
-    money = 35000
+    money = int(35000)
     ## HQ_list[0][0] = HQ_exchange_list
     ## HQ_list[][1] = HQ_coating_list
     ## HQ_list[][2] = HQ_sheet_metal_list
@@ -291,20 +300,20 @@ def DB_HQ_cal(HQ_list, selectedCar, selectedYear, selectedColor, part_output, ca
     cursor = db.cursor()
     # selectedCar = "'" + selectedCar + "'"
     # selectedYear = "'" + selectedYear + "'"
-    query = f"SELECT DISTINCT {part_output} FROM car_part_price WHERE \
+    query = f"SELECT DISTINCT `{part_output}` FROM car_data WHERE \
             차이름 = '{selectedCar}' AND \
             연식 = '{selectedYear}'"  # 차량 이름으로 차량 크기 뽑기
     cursor.execute(query)
     result = cursor.fetchall()
-    part_cost = result[0][0]
+    part_cost = int(result[0][0])
 
-    query = f"SELECT DISTINCT {part_output} FROM car_coating_price WHERE \
+    query = f"SELECT DISTINCT `{part_output}` FROM car_coating_price WHERE \
             차량크기 = '{car_size}'"  # 차량 이름으로 차량 크기 뽑기
     cursor.execute(query)
     result = cursor.fetchall()
-    coating_cost = result[0][0]
+    coating_cost = int(result[0][0])
 
-    query = f"SELECT price FROM car_color_price WHERE color='{selectedColor}'"
+    query = f"SELECT `white contrast` FROM car_color_price WHERE color='{selectedColor}'"
     cursor.execute(query)
     result = cursor.fetchall()
     color_cost = result[0][0]
@@ -320,8 +329,8 @@ def DB_HQ_cal(HQ_list, selectedCar, selectedYear, selectedColor, part_output, ca
         # coating_cost_float = float(coating_cost[i])
         # color_cost_float = float(color_cost[i])
 
-        exchange_cost = part_cost + money*(HQ_list[0][i]) + money*(HQ_list[1][i]) + coating_cost*(HQ_list[2][i])*color_cost
-        sheet_metal = money*(HQ_list[0][i]) + money*(HQ_list[2][i]) + money*(HQ_list[1][i]) + coating_cost*(HQ_list[1][i])*color_cost
+        exchange_cost = part_cost + money*(int(HQ_list[0][i])) + money*(int(HQ_list[1][i])) + coating_cost*(int(HQ_list[2][i]))*float(color_cost)
+        sheet_metal = money*(int(HQ_list[0][i])) + money*(HQ_list[2][i]) + money*(int(HQ_list[1][i])) + coating_cost*(int(HQ_list[1][i]))*float(color_cost)
 
         exchange_cost_list.append(exchange_cost)
         sheet_metal_list.append(sheet_metal)
@@ -369,4 +378,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(port=8080, host="0.0.0.0", debug=True)
+    app.run(port=8080, host="0.0.0.0")
