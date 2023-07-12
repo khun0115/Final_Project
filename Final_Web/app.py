@@ -12,7 +12,8 @@ from ultralytics import YOLO
 import mysql.connector
 
 app = Flask(__name__)
-app.secret_key = 'aaa'
+app.jinja_env.globals['os'] = os
+
 
 # 이전 사용 이미지 있으면 삭제
 def clear():
@@ -259,6 +260,7 @@ def HQ_ML_model(part_output, damage_type_output_arr, car_size):
     # 3. HQ_coating
     if part_output == "Wheel":
         pass
+
     else:
         del df['Wheel']
         coating_model = joblib.load('Final_Web/static/models/HQ_coating_r_forest.pkl')
@@ -367,5 +369,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.secret_key = '1234'
     app.run(port=8080, host="0.0.0.0", debug=True)

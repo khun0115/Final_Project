@@ -30,8 +30,13 @@
         </div>
         <div>
           <span class="badge text-bg-dark" style="font-size: 25px;"> 미리 보기 </span>
+          {% if os.path.exists('Final_Web/static/input_images/car_part/part_img/part.jpg') %}
           <img src="{{ url_for('static', filename='input_images/car_part/part_img/part.jpg') }}"
             class="img-thumbnail rounded mx-auto d-block custom-image" alt="업로드사진" style="height: 300px; width: 300px;">
+          {% else %}
+            <img src="{{ url_for('static', filename='menu/ex.png') }}" class="img-thumbnail rounded mx-auto d-block custom-image"
+              alt="업로드 사진" style="height: 300px; width: 300px;">
+          {% endif %}
 
         </div>
 
@@ -45,12 +50,20 @@
         차량 상처 사진 업로드란
       </span>
 
-      <div class="thumbnail-grid custom-center" id="thumbnails" style="margin-bottom: 20px;"></div>
+
+      <div class="custom-center">
+        <ul class="list-group">
+          {% for file_name in os.listdir('Final_Web/static/input_images/car_damage_type/client_input') %}
+          <li class="list-group-item">{{ file_name }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+
       <div class="custom-center">
         <form action="/upload_damage_type" method="POST" enctype="multipart/form-data">
           <span class="badge text-bg-primary" style="font-size: 17px;">부위사진</span>
-          <input type="file" name="part_img_file" id="partImageInput" onchange="previewPartImage(event)"
-            accept="image/*" />
+          <input type="file" name="part_img_file" id="partImageInput" />
 
           <span class="badge text-bg-primary" style="font-size: 17px;">상처사진</span>
           <input type="file" name="damage_type_image" id="imageUpload" multiple>
@@ -58,70 +71,6 @@
           <button type="submit">업로드</button>
         </form>
       </div>
-
-
-
-      <script>
-        const imageUpload = document.getElementById('imageUpload');
-        const thumbnailsContainer = document.getElementById('thumbnails');
-
-        imageUpload.addEventListener('change', handleImageUpload);
-        handleImageUpload();
-
-        function handleImageUpload(event) {
-          const files = Array.from(imageUpload.files);
-          const maxFiles = 10; // 최대 파일 개수
-
-          if (files.length > maxFiles) {
-            alert(`최대 ${maxFiles}개의 파일만 선택할 수 있습니다.`);
-            imageUpload.value = ''; // 파일 선택 취소
-            return;
-          }
-
-          thumbnailsContainer.innerHTML = '';
-
-          const totalSlots = 10; // 썸네일 자리의 총 개수
-          const emptySlots = totalSlots - files.length; // 빈 자리의 개수
-
-          files.forEach((file) => {
-            const reader = new FileReader();
-
-            reader.onload = function (e) {
-              const thumbnail = document.createElement('img');
-              thumbnail.src = e.target.result;
-              thumbnail.classList.add('thumbnail');
-              thumbnailsContainer.appendChild(thumbnail);
-            };
-
-            reader.readAsDataURL(file);
-          });
-
-          for (let i = 0; i < emptySlots; i++) {
-            const placeholder = document.createElement('div');
-            placeholder.classList.add('thumbnail', 'placeholder');
-            thumbnailsContainer.appendChild(placeholder);
-          }
-        }
-
-        function previewPartImage(event) {
-          const fileInput = event.target;
-          const file = fileInput.files[0];
-          const imgPreview = document.getElementById("partImagePreview");
-
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-              imgPreview.src = e.target.result;
-              imgPreview.style.display = "block";
-            }
-            reader.readAsDataURL(file);
-          } else {
-            imgPreview.src = "";
-            imgPreview.style.display = "none";
-          }
-        }
-
-      </script>
 
     </div>
     <div class="d-flex justify-content-center">

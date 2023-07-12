@@ -26,13 +26,12 @@
 
   </div>
 
-  <div margin-left: 40px;>
+  <div class="custom-center">
     <h2>{{part_output['char_type'] }}</h2>
-    <h2></h2>
-    <h2>{{'파손 유형', damage_type_output}}</h2>
+    <h2><span class="badge text-bg-danger" style="margin: 20px;">파손 유형</span>{{damage_type_output_arr}}</h2>
     {% for i in range(exchange_cost_list|length) %}
-    <h2><span class="badge text-bg-danger" >교환-도장</span>{{exchange_cost_list[i]}}</h2>
-    <h2><span class="badge text-bg-danger" >판금-도장</span>{{sheet_metal_list[i]}}</h2>
+    <h2><span class="badge text-bg-danger" style="margin: 20px;">교환-도장</span>{{exchange_cost_list[i]}}</h2>
+    <h2><span class="badge text-bg-danger" style="margin: 20px;">판금-도장</span>{{sheet_metal_list[i]}}</h2>
     {% endfor %}
   </div>
 

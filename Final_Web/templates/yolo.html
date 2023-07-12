@@ -32,9 +32,15 @@
         </div>
         <div>
           <h2><span class="badge text-bg-dark"> 미리 보기 </span></h2>
-          <img src="{{url_for('static', filename='input_images/yolo_input/detect.jpg')}} " class="img-thumbnail rounded mx-auto d-block custom-image"
-            alt="업로드 사진" style="height: 400px; width: 400px;">
+          {% if os.path.exists('Final_Web/static/input_images/yolo_input/detect.jpg') %}
+            <img src="{{ url_for('static', filename='input_images/yolo_input/detect.jpg') }}" class="img-thumbnail rounded mx-auto d-block custom-image"
+              alt="업로드 사진" style="height: 400px; width: 400px;">
+          {% else %}
+            <img src="{{ url_for('static', filename='menu/ex.png') }}" class="img-thumbnail rounded mx-auto d-block custom-image"
+              alt="업로드 사진" style="height: 400px; width: 400px;">
+          {% endif %}
         </div>
+        
 
       </div>
     </div>
